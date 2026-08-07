@@ -1,0 +1,10 @@
+# Local git hooks powered by commit-check.
+# Install once with:
+#   pip install pre-commit && pre-commit install --hook-type commit-msg --hook-type pre-commit
+# https://commit-check.com
+repos:
+  - repo: https://github.com/commit-check/commit-check
+    rev: v2.13.4
+    hooks:
+      - id: check-message   # validate the commit message (Conventional Commits)
+      - id: check-branch    # validate the branch name (Conventional Branch)
