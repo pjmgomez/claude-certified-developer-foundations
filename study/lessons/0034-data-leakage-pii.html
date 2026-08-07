@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Phase 7 · Data leakage &amp; PII</title>
+  <link rel="stylesheet" href="../assets/styles.css">
+</head>
+<body>
+<main>
+  <header class="lesson-head">
+    <div class="lesson-kicker">Phase 7 · Security &amp; Safety</div>
+    <h1>Data leakage &amp; PII</h1>
+    <p class="lesson-sub">Minimize what you send, watch what comes back, and keep sensitive data out of schemas.</p>
+    <div class="badges"><span class="badge">Domain 7.1 · AI Application Security</span></div>
+  </header>
+
+  <p>Every token you send is data you&rsquo;re trusting to a pipeline; every token that returns is data that
+  could leak. Handling personal and sensitive information well is both a security and a compliance concern.</p>
+
+  <p><strong>Your win:</strong> apply data minimization, and place PHI correctly when using structured outputs.</p>
+
+  <h2>The practices</h2>
+  <ul>
+    <li><strong>Minimize PII in prompts.</strong> Send the least sensitive data that accomplishes the task; redact
+      or tokenize where you can.</li>
+    <li><strong>Watch the output.</strong> Monitor responses for leaked secrets, system-prompt disclosure, or PII
+      the model shouldn&rsquo;t have surfaced.</li>
+    <li><strong>Structured outputs &amp; PHI.</strong> Structured outputs are HIPAA-eligible, <em>but PHI must not
+      appear in the schema definition</em> &mdash; schemas are compiled and cached separately from the request.</li>
+    <li><strong>AAA / CIA.</strong> Enforce authentication, authorization, confidentiality, privacy, and
+      integrity at every boundary &mdash; not just the front door.</li>
+  </ul>
+
+  <div class="callout callout--warn">
+    <span class="callout__label">The schema trap</span>
+    It&rsquo;s tempting to bake an example value into a schema (<code>"patient": "Jane Doe, DOB..."</code>).
+    Don&rsquo;t &mdash; the schema is cached separately, so real PHI in a schema definition outlives the request
+    it belonged to. Keep sensitive values in the message, never the schema.
+  </div>
+
+  <h2>Check yourself</h2>
+  <div class="quiz">
+    <script type="application/json">
+    [
+      {
+        "stem": "When using structured outputs with PHI, you must ensure PHI...",
+        "options": [
+          "Never appears in the schema definition itself",
+          "Is duplicated into the schema for validation",
+          "Is sent only inside the json_schema type field",
+          "Is base64-encoded before entering any message"
+        ],
+        "answer": 0,
+        "explain": "Structured outputs are HIPAA-eligible, but the schema is cached separately \u2014 so PHI in a schema definition persists beyond the request. Keep it in the message only."
+      },
+      {
+        "stem": "The core data-minimization principle is to...",
+        "options": [
+          "Send the least sensitive data that accomplishes the task",
+          "Send everything so the model has full context always",
+          "Encrypt the whole prompt so PII is safe to include",
+          "Rely on the model to ignore any PII it doesn't need"
+        ],
+        "answer": 0,
+        "explain": "Minimize PII in prompts \u2014 redact or tokenize what you can. Less sensitive data in means less to leak out."
+      },
+      {
+        "stem": "Output monitoring guards against...",
+        "options": [
+          "Leaked secrets, prompt disclosure, or surfaced PII in responses",
+          "Slow response times on large streaming requests",
+          "The model refusing a benign, in-policy request",
+          "Rate limits triggered by too many parallel calls"
+        ],
+        "answer": 0,
+        "explain": "Watching the output catches leakage and successful injections \u2014 the response is the last place to notice something went wrong before it reaches a user."
+      }
+    ]
+    </script>
+  </div>
+
+  <div class="callout callout--teacher">
+    <span class="callout__label">Ask your teacher</span>
+    Want a redaction pass for prompts, or an output monitor that flags PII before it reaches the user? Bring a
+    sample and we&rsquo;ll sketch it.
+  </div>
+
+  <nav class="lesson-nav">
+    <a href="0033-claude-hooks.html">&larr; Claude hooks</a>
+    <a href="0035-secrets-and-keys.html">Next &middot; Identity, secrets &amp; keys &rarr;</a>
+  </nav>
+
+  <footer class="course-foot">CCDV-F &middot; Lesson 0034 &middot; Reference:
+    <a href="../reference/prompt-injection.html">Security</a></footer>
+</main>
+<script src="../assets/quiz.js"></script>
+</body>
+</html>

@@ -1,0 +1,116 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Phase 5 · Agent frameworks</title>
+  <link rel="stylesheet" href="../assets/styles.css">
+</head>
+<body>
+<main>
+  <header class="lesson-head">
+    <div class="lesson-kicker">Phase 5 · Agents &amp; Workflows</div>
+    <h1>Agent frameworks</h1>
+    <p class="lesson-sub">Strands, LangGraph, PydanticAI &mdash; and why Anthropic says start without one.</p>
+    <div class="badges"><span class="badge">Domain 1.3 · Frameworks</span></div>
+  </header>
+
+  <p>Frameworks can speed you up &mdash; and hide the prompts and responses you need to see when things break.
+  Know what each is for, and know Anthropic&rsquo;s stance: start with the API directly; adopt a framework only
+  once you understand the code underneath it.</p>
+
+  <p><strong>Your win:</strong> match each framework to the job it&rsquo;s best at.</p>
+
+  <table>
+    <thead><tr><th>Framework</th><th>Shape</th><th>Best for</th></tr></thead>
+    <tbody>
+      <tr>
+        <td><strong>Claude Agent SDK</strong></td>
+        <td>Claude Code&rsquo;s loop as a library.</td>
+        <td>Claude-native agents with tools, hooks, subagents (Lessons 0023&ndash;0024).</td>
+      </tr>
+      <tr>
+        <td><strong>Strands</strong> (AWS)</td>
+        <td>Model-driven loop; OpenTelemetry.</td>
+        <td>AWS-centric deployment (Bedrock AgentCore, Lambda, Fargate); runs inside Amazon Q, Kiro, Glue.</td>
+      </tr>
+      <tr>
+        <td><strong>LangGraph</strong></td>
+        <td>Graph: nodes = steps, edges = control flow.</td>
+        <td>Stateful, long-running, multi-actor flows with cycles, persistence, durable execution, and
+          human-in-the-loop checkpoints. Observability via LangSmith.</td>
+      </tr>
+      <tr>
+        <td><strong>PydanticAI</strong></td>
+        <td>Type-safe Python agents.</td>
+        <td>Runtime output validation with auto-retry on malformed responses; strong testing (TestModel,
+          FunctionModel, <code>Agent.override</code>, pytest); built-in usage limits. Observability via Logfire.</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="callout callout--warn">
+    <span class="callout__label">Anthropic&rsquo;s guidance</span>
+    Start with the API directly. If you adopt a framework, <strong>understand the code it generates</strong> &mdash;
+    abstraction layers obscure the actual prompts and responses, which makes debugging harder. A framework you
+    can&rsquo;t see through is a liability when an agent misbehaves.
+  </div>
+
+  <h2>Check yourself</h2>
+  <div class="quiz">
+    <script type="application/json">
+    [
+      {
+        "stem": "Which framework is graph-based, for stateful multi-actor flows with checkpoints?",
+        "options": [
+          "LangGraph, with nodes as steps and edges as control flow",
+          "PydanticAI, focused on type-safe validated outputs",
+          "Strands, focused on AWS-native deployment targets",
+          "The Claude Agent SDK, which is Claude Code as a library"
+        ],
+        "answer": 0,
+        "explain": "LangGraph models the agent as a graph \u2014 ideal for stateful, long-running, multi-actor workflows with cycles and human-in-the-loop checkpoints."
+      },
+      {
+        "stem": "You want runtime output validation with automatic retries and strong testing. Pick...",
+        "options": [
+          "PydanticAI, the type-safe Python agent framework",
+          "Strands, the AWS model-driven loop framework",
+          "LangGraph, the durable graph orchestration engine",
+          "Raw REST calls with no framework of any kind"
+        ],
+        "answer": 0,
+        "explain": "PydanticAI validates outputs at runtime, retries malformed responses, and has a strong testing story (TestModel, FunctionModel, Agent.override)."
+      },
+      {
+        "stem": "Anthropic's advice on frameworks is to...",
+        "options": [
+          "Start with the API; understand a framework's code before adopting it",
+          "Always adopt the most popular framework immediately",
+          "Never use any framework under any circumstances",
+          "Pick a framework first, then learn the API later"
+        ],
+        "answer": 0,
+        "explain": "Start direct. Frameworks hide prompts and responses; only adopt one once you can see through it, or debugging a misbehaving agent gets much harder."
+      }
+    ]
+    </script>
+  </div>
+
+  <div class="callout callout--teacher">
+    <span class="callout__label">Ask your teacher</span>
+    Weighing a framework for a real project? Describe it and we&rsquo;ll decide whether the abstraction pays for
+    itself here.
+  </div>
+
+  <nav class="lesson-nav">
+    <a href="0024-subagents-and-hooks.html">&larr; Subagents &amp; hooks</a>
+    <span>Phase 5 complete &middot; Phase 6 (Claude Code) up next</span>
+  </nav>
+
+  <footer class="course-foot">CCDV-F &middot; Lesson 0025 &middot; Reference:
+    <a href="../reference/workflow-patterns.html">Workflow patterns</a></footer>
+</main>
+<script src="../assets/quiz.js"></script>
+</body>
+</html>

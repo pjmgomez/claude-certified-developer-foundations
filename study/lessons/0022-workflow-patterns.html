@@ -1,0 +1,111 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Phase 5 · The five workflow patterns</title>
+  <link rel="stylesheet" href="../assets/styles.css">
+</head>
+<body>
+<main>
+  <header class="lesson-head">
+    <div class="lesson-kicker">Phase 5 · Agents &amp; Workflows</div>
+    <h1>The five workflow patterns</h1>
+    <p class="lesson-sub">A vocabulary for composing LLM calls &mdash; memorise all five and when each fits.</p>
+    <div class="badges"><span class="badge">Domain 1.3 · Agent Patterns</span></div>
+  </header>
+
+  <p>Before you reach for a full agent, most problems yield to one of five composable patterns. The exam expects
+  you to name each and tell them apart &mdash; especially orchestrator&ndash;workers vs. parallelization.</p>
+
+  <p><strong>Your win:</strong> implement routing (cheap vs. capable model) and a two-step prompt chain, and
+  articulate what separates the orchestrator pattern from plain parallelization.</p>
+
+  <h2>The five</h2>
+  <ol class="steps">
+    <li><strong>Prompt chaining</strong> &mdash; fixed sequential steps; each processes the last output; add
+      programmatic <em>gates</em> between them. Trades latency for accuracy. (Outline &rarr; draft &rarr; polish.)</li>
+    <li><strong>Routing</strong> &mdash; classify the input, then dispatch to a specialised follow-up. Send easy
+      queries to Haiku, hard ones to Opus. Separation of concerns.</li>
+    <li><strong>Parallelization</strong> &mdash; <em>sectioning</em> (split into independent subtasks run at once)
+      or <em>voting</em> (run the same task several times for confidence or diversity).</li>
+    <li><strong>Orchestrator&ndash;workers</strong> &mdash; a central LLM <em>dynamically</em> decides the
+      subtasks, delegates to workers, and synthesizes. The subtasks are <strong>not predefined</strong> &mdash;
+      that&rsquo;s the whole difference from parallelization. Great for coding across many files.</li>
+    <li><strong>Evaluator&ndash;optimizer</strong> &mdash; one LLM generates, another evaluates and returns
+      feedback, looping until it&rsquo;s good. Needs clear eval criteria.</li>
+  </ol>
+
+  <h2>Do it</h2>
+  <ol class="steps">
+    <li>Build a router: a cheap Haiku call classifies the request as <code>simple</code> or <code>hard</code>,
+      then your code sends it to Haiku or Opus accordingly. One classifier, two downstream paths.</li>
+    <li>Build a two-step chain with a gate: step 1 drafts; your code checks a condition (length? contains a
+      required field?); only if it passes does step 2 refine. The gate is plain Python, not a model call.</li>
+  </ol>
+
+  <div class="callout callout--warn">
+    <span class="callout__label">The classic mix-up</span>
+    Parallelization&rsquo;s subtasks are <em>fixed in advance</em>; orchestrator&ndash;workers <em>discovers</em>
+    them at runtime. If your code already knows the split, it&rsquo;s parallelization. If the model decides the
+    split, it&rsquo;s the orchestrator.
+  </div>
+
+  <h2>Check yourself</h2>
+  <div class="quiz">
+    <script type="application/json">
+    [
+      {
+        "stem": "What distinguishes orchestrator-workers from parallelization?",
+        "options": [
+          "The orchestrator decides the subtasks dynamically at runtime",
+          "The orchestrator always runs its subtasks strictly in order",
+          "Parallelization needs an evaluator model to score outputs",
+          "Parallelization can only ever run on a single fast model"
+        ],
+        "answer": 0,
+        "explain": "Parallelization's subtasks are predefined; the orchestrator determines them on the fly, then delegates and synthesizes."
+      },
+      {
+        "stem": "Sending easy queries to Haiku and hard ones to Opus is which pattern?",
+        "options": [
+          "Routing: classify, then dispatch to a specialist",
+          "Prompt chaining: fixed sequential dependent steps",
+          "Voting: run the same task several times over",
+          "Evaluator-optimizer: generate, then critique in a loop"
+        ],
+        "answer": 0,
+        "explain": "That's routing \u2014 classify the input and send it down a specialized path. It's a common cost-optimization move."
+      },
+      {
+        "stem": "Running the same task several times to boost confidence is...",
+        "options": [
+          "Parallelization by voting",
+          "Parallelization by sectioning",
+          "Prompt chaining with gates",
+          "The evaluator-optimizer loop"
+        ],
+        "answer": 0,
+        "explain": "Voting runs the same task repeatedly for diverse or higher-confidence outputs. Sectioning splits one task into independent parts."
+      }
+    ]
+    </script>
+  </div>
+
+  <div class="callout callout--teacher">
+    <span class="callout__label">Ask your teacher</span>
+    Want to compose two of these &mdash; say, routing into a prompt chain &mdash; for a real task? Bring it and
+    we&rsquo;ll wire it up.
+  </div>
+
+  <nav class="lesson-nav">
+    <a href="0021-workflow-vs-agent.html">&larr; Workflow vs agent</a>
+    <a href="0023-agent-sdk.html">Next &middot; The Claude Agent SDK &rarr;</a>
+  </nav>
+
+  <footer class="course-foot">CCDV-F &middot; Lesson 0022 &middot; Reference:
+    <a href="../reference/workflow-patterns.html">Workflow patterns</a></footer>
+</main>
+<script src="../assets/quiz.js"></script>
+</body>
+</html>

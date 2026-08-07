@@ -1,0 +1,109 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Phase 5 · Workflow vs agent</title>
+  <link rel="stylesheet" href="../assets/styles.css">
+</head>
+<body>
+<main>
+  <header class="lesson-head">
+    <div class="lesson-kicker">Phase 5 · Agents &amp; Workflows</div>
+    <h1>Workflow vs agent</h1>
+    <p class="lesson-sub">The most important architecture decision &mdash; and why the answer is usually &ldquo;keep it simple.&rdquo;</p>
+    <div class="badges">
+      <span class="badge">Domain 1.1 · Agent Architecture</span>
+      <span class="badge badge--weight">Domain 1 = 14.7%</span>
+    </div>
+  </header>
+
+  <p>&ldquo;Agent&rdquo; is the exciting word, but most production value comes from <em>workflows</em>. Knowing
+  which to reach for &mdash; and defaulting to the simpler one &mdash; is the single most valuable lesson from
+  Anthropic&rsquo;s &ldquo;Building Effective Agents.&rdquo;</p>
+
+  <p><strong>Your win:</strong> classify three tasks as workflow or agent, and justify each in one sentence.</p>
+
+  <div class="callout callout--source">
+    <span class="callout__label">Read alongside</span>
+    The <a href="../reference/workflow-patterns.html">workflow-patterns sheet</a>. Foundation:
+    <a href="https://www.anthropic.com/engineering/building-effective-agents">Building Effective Agents</a>.
+  </div>
+
+  <h2>The distinction</h2>
+  <ul>
+    <li><strong>Workflow</strong> &mdash; LLMs and tools orchestrated through <em>predefined code paths</em>.
+      Predictable, testable, cheap. Right when the steps are known.</li>
+    <li><strong>Agent</strong> &mdash; the model <em>dynamically directs its own process</em> and tool use.
+      Flexible but costlier and less predictable. Right when you can&rsquo;t hardcode the path.</li>
+    <li><strong>Augmented LLM</strong> &mdash; the building block under both: a model plus retrieval, tools, and
+      memory.</li>
+  </ul>
+
+  <div class="callout callout--warn">
+    <span class="callout__label">The rule to internalise</span>
+    Find the <strong>simplest solution possible, and only add complexity when it demonstrably improves
+    outcomes.</strong> Reach for an agent only for open-ended problems where the path can&rsquo;t be predicted
+    <em>and</em> you can trust the model&rsquo;s decisions in a guarded environment. Three principles when you do:
+    <strong>simplicity</strong>, <strong>transparency</strong> (show the plan), and a well-crafted
+    <strong>agent&ndash;computer interface</strong> (tool docs you test like prompts).
+  </div>
+
+  <h2>Check yourself</h2>
+  <div class="quiz">
+    <script type="application/json">
+    [
+      {
+        "stem": "The core decision rule for agent vs workflow is...",
+        "options": [
+          "Simplest solution first; add complexity only when it helps",
+          "Always prefer an agent, since agents are more capable",
+          "Always prefer a workflow, since workflows never fail",
+          "Choose whichever the newest framework makes easiest"
+        ],
+        "answer": 0,
+        "explain": "Start simple. Agents trade latency and cost for flexibility \u2014 add that autonomy only when it demonstrably improves outcomes."
+      },
+      {
+        "stem": "The defining trait of an agent (vs a workflow) is that...",
+        "options": [
+          "The model dynamically directs its own process and tools",
+          "It always uses more than one model in the pipeline",
+          "It runs its steps in parallel rather than in sequence",
+          "It never uses tools, relying only on its own knowledge"
+        ],
+        "answer": 0,
+        "explain": "Agents are model-driven: the LLM decides the path and tool use. Workflows run through predefined code paths you control."
+      },
+      {
+        "stem": "The 'augmented LLM' building block is a model plus...",
+        "options": [
+          "Retrieval, tools, and memory",
+          "A second, larger evaluator model",
+          "A fixed chain of three prompts",
+          "A guaranteed JSON output schema"
+        ],
+        "answer": 0,
+        "explain": "The augmented LLM \u2014 retrieval + tools + memory \u2014 is the foundational unit that both workflows and agents are built from."
+      }
+    ]
+    </script>
+  </div>
+
+  <div class="callout callout--teacher">
+    <span class="callout__label">Ask your teacher</span>
+    Describe something you want to build and we&rsquo;ll decide together whether it&rsquo;s a workflow, an agent,
+    or (usually) a workflow with one agentic step.
+  </div>
+
+  <nav class="lesson-nav">
+    <a href="0020-context-editing-memory.html">&larr; Context editing &amp; memory</a>
+    <a href="0022-workflow-patterns.html">Next &middot; The five patterns &rarr;</a>
+  </nav>
+
+  <footer class="course-foot">CCDV-F &middot; Lesson 0021 &middot; Reference:
+    <a href="../reference/workflow-patterns.html">Workflow patterns</a></footer>
+</main>
+<script src="../assets/quiz.js"></script>
+</body>
+</html>

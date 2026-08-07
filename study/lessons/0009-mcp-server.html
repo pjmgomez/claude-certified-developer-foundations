@@ -1,0 +1,130 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Phase 2 · Build an MCP server</title>
+  <link rel="stylesheet" href="../assets/styles.css">
+</head>
+<body>
+<main>
+  <header class="lesson-head">
+    <div class="lesson-kicker">Phase 2 · Tools &amp; MCP</div>
+    <h1>Build an MCP server</h1>
+    <p class="lesson-sub">Package a tool, a resource, and a prompt once &mdash; and any client can use them.</p>
+    <div class="badges">
+      <span class="badge">Domain 8.2 · MCP Server Development</span>
+      <span class="badge">Domain 8.3 · Agentic Customization</span>
+    </div>
+  </header>
+
+  <p>Custom tools live inside one app. The <strong>Model Context Protocol</strong> lets you expose the same
+  capability as a standalone server that <em>many</em> clients connect to &mdash; Claude Code, Claude Desktop,
+  your own SDK app. It&rsquo;s an open JSON-RPC protocol with three primitives: <strong>Tools</strong>,
+  <strong>Resources</strong>, <strong>Prompts</strong>.</p>
+
+  <p><strong>Your win:</strong> a running stdio MCP server exposing one of each primitive, poked live in the
+  MCP Inspector &mdash; no Anthropic key required.</p>
+
+  <div class="callout callout--source">
+    <span class="callout__label">Read alongside</span>
+    The <a href="../reference/mcp.html">MCP essentials sheet</a> &mdash; primitives, transports (stdio vs
+    Streamable HTTP), lifecycle, and the CLI.
+  </div>
+
+  <h2>Do it</h2>
+  <ol class="steps">
+    <li>Install the SDK with its CLI: <pre><code>pip install "mcp[cli]"</code></pre></li>
+    <li>Write <code>server.py</code>:
+      <pre><code>from mcp.server.mcpserver import MCPServer   # this class was formerly called FastMCP
+
+mcp = MCPServer("inventory")
+
+@mcp.tool()
+def stock_level(sku: str) -> int:
+    """Units in stock for a SKU."""
+    return {"A1": 12, "B2": 0}.get(sku, 0)
+
+@mcp.resource("inventory://skus")
+def all_skus() -> str:
+    """Every known SKU, one per line."""
+    return "A1\nB2"
+
+@mcp.prompt()
+def restock_note(sku: str) -> str:
+    """Draft a restock request."""
+    return f"Write a short restock request for SKU {sku}."
+
+if __name__ == "__main__":
+    mcp.run()        # stdio by default</code></pre></li>
+    <li>Explore it live in the Inspector: <pre><code>mcp dev server.py</code></pre>
+      List the tool, call <code>stock_level("A1")</code>, read the <code>inventory://skus</code> resource,
+      and render the prompt.</li>
+    <li>To use it from Claude Code, register it with <code>claude mcp add</code> (confirm the exact flags in
+      the Claude Code docs). The same server, now available to a real agent.</li>
+  </ol>
+
+  <div class="callout callout--warn">
+    <span class="callout__label">Trust boundary</span>
+    The stdio transport is <em>not</em> sandboxed &mdash; a local server runs with your privileges. Only run
+    servers you trust, and require explicit user consent before a client calls their tools.
+  </div>
+
+  <h2>Check yourself</h2>
+  <div class="quiz">
+    <script type="application/json">
+    [
+      {
+        "stem": "What are MCP's three core primitives?",
+        "options": [
+          "Tools, Resources, and Prompts exposed by the server",
+          "Agents, Sessions, and Hooks managed by the client",
+          "Models, Tokens, and Streams moved over the socket",
+          "Skills, Commands, and Rules loaded from a folder"
+        ],
+        "answer": 0,
+        "explain": "Tools (functions), Resources (read-only URI data), and Prompts (templates). Sampling and Roots are the advanced extras."
+      },
+      {
+        "stem": "A local MCP server most commonly communicates over...",
+        "options": [
+          "stdio, running as a child subprocess of the client",
+          "Streamable HTTP, bound to a public port and domain",
+          "raw WebSockets negotiated during model inference time",
+          "the Anthropic Messages API using your x-api-key header"
+        ],
+        "answer": 0,
+        "explain": "stdio is the default local transport \u2014 the client spawns the server and talks JSON-RPC over stdin/stdout. Streamable HTTP is for remote servers."
+      },
+      {
+        "stem": "An MCP Resource is best described as...",
+        "options": [
+          "URI-addressed, read-only data the client can fetch",
+          "An executable function the model decides to invoke",
+          "A reusable prompt template with typed arguments",
+          "A scoped filesystem boundary the client provides"
+        ],
+        "answer": 0,
+        "explain": "Resources are read-only data addressed by URI (application-controlled). Tools execute; Prompts template; Roots are the scoped boundaries."
+      }
+    ]
+    </script>
+  </div>
+
+  <div class="callout callout--teacher">
+    <span class="callout__label">Ask your teacher</span>
+    Want to connect this server to the tool-use loop from Lesson 0006, or expose it over Streamable HTTP?
+    Ask and we&rsquo;ll wire it end to end.
+  </div>
+
+  <nav class="lesson-nav">
+    <a href="0008-writing-good-tools.html">&larr; Writing good tools</a>
+    <a href="0010-choosing-your-mechanism.html">Next &middot; Choosing your mechanism &rarr;</a>
+  </nav>
+
+  <footer class="course-foot">CCDV-F &middot; Lesson 0009 &middot; Reference:
+    <a href="../reference/mcp.html">MCP essentials</a></footer>
+</main>
+<script src="../assets/quiz.js"></script>
+</body>
+</html>

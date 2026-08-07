@@ -1,0 +1,118 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Phase 6 · Agents &amp; Agent Memory</title>
+  <link rel="stylesheet" href="../assets/styles.css">
+</head>
+<body>
+<main>
+  <header class="lesson-head">
+    <div class="lesson-kicker">Phase 6 · Claude Code</div>
+    <h1>Agents &amp; Agent Memory</h1>
+    <p class="lesson-sub">Delegate to subagents, let Claude keep its own notes, and run without a terminal.</p>
+    <div class="badges"><span class="badge">Domain 3 · Claude Code Operation</span></div>
+  </header>
+
+  <p>Three Claude Code features round out the picture: <strong>subagents</strong> (delegation with isolation),
+  <strong>Agent Memory</strong> (notes Claude writes for itself), and <strong>headless mode</strong> (Claude Code
+  in CI and cron). Note the two kinds of memory: <em>you</em> write CLAUDE.md; <em>Claude</em> writes Agent Memory.</p>
+
+  <p><strong>Your win:</strong> tell CLAUDE.md apart from Agent Memory, and run Claude Code headless in a script.</p>
+
+  <div class="callout callout--source">
+    <span class="callout__label">Read alongside</span>
+    The <a href="../reference/claude-code-files.html">files sheet</a> (Agents, Agent Memory) and the
+    <a href="../reference/claude-code-config.html">config sheet</a> (headless / streaming).
+  </div>
+
+  <h2>The three features</h2>
+  <ul>
+    <li><strong>Subagents</strong> &mdash; markdown in <code>.claude/agents/</code> with YAML frontmatter
+      (<code>name</code>, <code>description</code>, optional <code>model</code> + tool access). Each runs in its
+      own fresh context; only the final message returns. Built-ins: Explore, Plan, general-purpose. They
+      don&rsquo;t inherit skills unless listed.</li>
+    <li><strong>Agent Memory</strong> &mdash; learnings Claude writes under
+      <code>~/.claude/projects/&lt;project&gt;/memory/</code> with a <code>MEMORY.md</code> entrypoint. The first
+      200 lines (or 25KB) of MEMORY.md load at the start of every conversation; topic files load on demand.
+      Toggle with <code>/memory</code> or <code>CLAUDE_CODE_DISABLE_AUTO_MEMORY=1</code>.</li>
+    <li><strong>Sessions &amp; modes</strong> &mdash; <code>--continue</code>/<code>--resume</code> to pick up
+      where you left off; <strong>headless</strong> <code>-p</code> for automation.</li>
+  </ul>
+
+  <h2>Do it</h2>
+  <ol class="steps">
+    <li>Run Claude Code headless from a script &mdash; no TTY, reuses your settings, hooks, and permissions:
+      <pre><code>claude -p "Summarize today's git changes in three bullets"</code></pre>
+      This is what powers pre-commit hooks, cron jobs, and GitHub Actions.</li>
+    <li>Add <code>--output-format stream-json</code> to consume the run programmatically.</li>
+    <li>Open <code>~/.claude/projects/&lt;project&gt;/memory/MEMORY.md</code> after a few sessions and read what
+      Claude chose to remember &mdash; then contrast it with your hand-written CLAUDE.md.</li>
+  </ol>
+
+  <div class="callout callout--warn">
+    <span class="callout__label">Headless gotcha</span>
+    <code>PermissionRequest</code> hooks do <strong>not</strong> fire in headless mode. A
+    <code>permissionDecision: "defer"</code> pauses a call so a wrapping process can decide &mdash; design
+    automation with that in mind.
+  </div>
+
+  <h2>Check yourself</h2>
+  <div class="quiz">
+    <script type="application/json">
+    [
+      {
+        "stem": "What is the difference between CLAUDE.md and Agent Memory?",
+        "options": [
+          "You write CLAUDE.md; Claude writes Agent Memory itself",
+          "They are the same file under two different names",
+          "Agent Memory is committed; CLAUDE.md is always ignored",
+          "CLAUDE.md loads on demand; Agent Memory never loads"
+        ],
+        "answer": 0,
+        "explain": "CLAUDE.md is authored by you. Agent Memory is what Claude writes for itself, under ~/.claude/projects/<project>/memory/, led by MEMORY.md."
+      },
+      {
+        "stem": "Which loads at the start of every conversation?",
+        "options": [
+          "The first 200 lines (or 25KB) of MEMORY.md",
+          "Every topic file in the memory directory, in full",
+          "The entire subagent transcript from the last run",
+          "Nothing; memory only loads when you type /memory"
+        ],
+        "answer": 0,
+        "explain": "The first 200 lines of MEMORY.md (or first 25KB, whichever comes first) load each conversation; deeper topic files load on demand."
+      },
+      {
+        "stem": "Headless mode (claude -p) is primarily for...",
+        "options": [
+          "Automation \u2014 CI, cron, pre-commit, GitHub Actions",
+          "Interactive pair-programming in a live terminal",
+          "Bypassing all permission and hook configuration",
+          "Running a subagent that needs a fresh context"
+        ],
+        "answer": 0,
+        "explain": "Headless mode runs without a TTY and reuses your settings, hooks, and permissions \u2014 the basis for CI, cron, and Action-driven automation."
+      }
+    ]
+    </script>
+  </div>
+
+  <div class="callout callout--teacher">
+    <span class="callout__label">Ask your teacher</span>
+    Want to wire Claude Code into a pre-commit hook or a GitHub Action headless run? Ask and we&rsquo;ll sketch it.
+  </div>
+
+  <nav class="lesson-nav">
+    <a href="0027-rules-skills-commands.html">&larr; Rules, Skills &amp; Commands</a>
+    <a href="0029-configuration-management.html">Next &middot; Configuration management &rarr;</a>
+  </nav>
+
+  <footer class="course-foot">CCDV-F &middot; Lesson 0028 &middot; Reference:
+    <a href="../reference/claude-code-files.html">Files</a> ·
+    <a href="../reference/claude-code-config.html">Config</a></footer>
+</main>
+<script src="../assets/quiz.js"></script>
+</body>
+</html>

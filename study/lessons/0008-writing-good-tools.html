@@ -1,0 +1,102 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Phase 2 · Writing tools Claude uses well</title>
+  <link rel="stylesheet" href="../assets/styles.css">
+</head>
+<body>
+<main>
+  <header class="lesson-head">
+    <div class="lesson-kicker">Phase 2 · Tools &amp; MCP</div>
+    <h1>Writing tools Claude uses well</h1>
+    <p class="lesson-sub">The description <em>is</em> the interface. Engineer it like a prompt.</p>
+    <div class="badges"><span class="badge">Domain 8.1 · Tool description writing</span></div>
+  </header>
+
+  <p>Whether Claude picks the right tool and fills its arguments correctly depends almost entirely on the
+  <code>description</code> and <code>input_schema</code> &mdash; not on cleverness. A vague tool is a
+  coin-flip; a precise one is reliable. Treat tool descriptions with the same care as your prompts.</p>
+
+  <p><strong>Your win:</strong> turn a sloppy tool into one Claude calls correctly, using description detail
+  and a mistake-proof schema.</p>
+
+  <h2>The levers</h2>
+  <ul>
+    <li><strong>Say what it does and when to use it</strong> &mdash; include purpose, an example, edge cases,
+      and boundaries (&ldquo;returns at most 50 rows&rdquo;).</li>
+    <li><strong>Poka-yoke the schema</strong> (mistake-proof it): mark <code>required</code> fields, use
+      <code>enum</code> for fixed choices, and prefer unambiguous inputs (absolute paths over relative).</li>
+    <li><strong>Size the tool set</strong> &mdash; too many tools blurs selection. Keep the set tight; load
+      rarely-used tools on demand (e.g. via <code>tool_search</code>).</li>
+  </ul>
+
+  <h2>Do it</h2>
+  <ol class="steps">
+    <li>Start sloppy &mdash; <code>{"name": "lookup", "description": "look up a thing",
+      "input_schema": {"type":"object","properties":{"q":{"type":"string"}}}}</code> &mdash; and watch Claude
+      guess badly.</li>
+    <li>Rewrite it precisely:
+      <pre><code>{
+  "name": "find_order",
+  "description": "Look up ONE customer order by its order id. "
+                 "Use when the user gives an order number like 'ORD-1234'. "
+                 "Returns status and line items. Not for product search.",
+  "input_schema": {
+    "type": "object",
+    "properties": {
+      "order_id": {"type": "string", "description": "e.g. 'ORD-1234'"},
+      "include": {"type": "string", "enum": ["status", "items", "all"]}
+    },
+    "required": ["order_id"]
+  }
+}</code></pre></li>
+    <li>Re-ask an ambiguous question and confirm Claude now calls the right tool with clean arguments.</li>
+  </ol>
+
+  <h2>Check yourself</h2>
+  <div class="quiz">
+    <script type="application/json">
+    [
+      {
+        "stem": "What most determines whether Claude calls a tool correctly?",
+        "options": [
+          "A precise description and a well-shaped input schema",
+          "A higher temperature so the model explores its options",
+          "A larger model tier with more reasoning capability set",
+          "A longer max_tokens budget on the tool-carrying request"
+        ],
+        "answer": 0,
+        "explain": "Tool selection and argument quality track the description and schema. It is prompt engineering \u2014 spend effort there first."
+      },
+      {
+        "stem": "To 'poka-yoke' a tool schema means to...",
+        "options": [
+          "Make invalid or ambiguous inputs hard to express",
+          "Add as many optional parameters as you possibly can",
+          "Hide the schema so the model relies on the name only",
+          "Return errors as plain strings without an is_error flag"
+        ],
+        "answer": 0,
+        "explain": "Poka-yoke = mistake-proofing: required fields, enums, and unambiguous formats so a wrong call is hard to even construct."
+      }
+    ]
+    </script>
+  </div>
+
+  <div class="callout callout--teacher">
+    <span class="callout__label">Ask your teacher</span>
+    Want a rubric for auditing an existing tool set for overlap and bloat? Ask and we&rsquo;ll build one.
+  </div>
+
+  <nav class="lesson-nav">
+    <a href="0007-directing-tools.html">&larr; Directing tools</a>
+    <a href="0009-mcp-server.html">Next &middot; Build an MCP server &rarr;</a>
+  </nav>
+
+  <footer class="course-foot">CCDV-F &middot; Lesson 0008</footer>
+</main>
+<script src="../assets/quiz.js"></script>
+</body>
+</html>

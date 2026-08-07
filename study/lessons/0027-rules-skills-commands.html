@@ -1,0 +1,125 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Phase 6 · Rules, Skills &amp; Commands</title>
+  <link rel="stylesheet" href="../assets/styles.css">
+</head>
+<body>
+<main>
+  <header class="lesson-head">
+    <div class="lesson-kicker">Phase 6 · Claude Code</div>
+    <h1>Rules, Skills &amp; Commands</h1>
+    <p class="lesson-sub">Three ways to extend Claude Code &mdash; scoped rules, disclosed skills, and slash commands.</p>
+    <div class="badges">
+      <span class="badge">Domain 3 · Claude Code Operation</span>
+      <span class="badge">Domain 8.3 · Skills</span>
+    </div>
+  </header>
+
+  <p>Beyond CLAUDE.md, three mechanisms shape a Claude Code project: <strong>Rules</strong> (always-on or
+  path-scoped guidance), <strong>Skills</strong> (procedural know-how loaded on demand), and
+  <strong>Commands</strong> (slash-invoked actions). Each has a different loading cost, so each fits a different job.</p>
+
+  <p><strong>Your win:</strong> author a path-scoped Rule and a Skill, and understand why a Skill costs almost
+  nothing until it fires.</p>
+
+  <div class="callout callout--source">
+    <span class="callout__label">Read alongside</span>
+    The <a href="../reference/claude-code-files.html">Claude Code files sheet</a>, and the attached
+    <em>writing-for-agents</em> skill for how to word a skill&rsquo;s description (the trigger).
+  </div>
+
+  <h2>Do it</h2>
+  <ol class="steps">
+    <li><strong>Rule</strong> &mdash; drop markdown in <code>.claude/rules/</code>. Make it <em>path-scoped</em>
+      so it only loads when relevant:
+      <pre><code># .claude/rules/python-style.md
+---
+paths: ["**/*.py"]
+---
+Use type hints on public functions. Prefer pathlib over os.path.</code></pre>
+      Unscoped rules load at launch (same priority as <code>.claude/CLAUDE.md</code>); path-scoped ones load only
+      for matching files.</li>
+    <li><strong>Skill</strong> &mdash; create <code>.claude/skills/&lt;name&gt;/SKILL.md</code> with YAML
+      frontmatter. Only <code>name</code> + <code>description</code> sit in context (~50&ndash;100 tokens); the
+      body loads when the skill is invoked &mdash; <em>progressive disclosure</em>:
+      <pre><code># .claude/skills/release/SKILL.md
+---
+name: release
+description: Cut a release. Use when the user asks to publish or tag a version.
+---
+1. Run the test suite.
+2. Bump the version in pyproject.toml.
+3. Tag and push.</code></pre></li>
+    <li><strong>Command</strong> &mdash; note that skills and commands have merged:
+      <code>.claude/commands/release.md</code> and <code>.claude/skills/release/SKILL.md</code> both create
+      <code>/release</code>. Custom commands take <code>$ARGUMENTS</code>.</li>
+  </ol>
+
+  <div class="callout callout--warn">
+    <span class="callout__label">Why the description is everything</span>
+    A skill&rsquo;s <code>description</code> is the only part always in context &mdash; it&rsquo;s the trigger.
+    Front-load the leading word and name the branches that should reach it; a must-have skill behind a vague
+    description is a variance bug. (That&rsquo;s the <em>writing-for-agents</em> lesson.)
+  </div>
+
+  <h2>Check yourself</h2>
+  <div class="quiz">
+    <script type="application/json">
+    [
+      {
+        "stem": "What makes a Skill cheap to keep around until it's needed?",
+        "options": [
+          "Progressive disclosure: only name+description stay in context",
+          "It is stored on disk and never enters the context at all",
+          "It loads fully at launch but is compressed to save tokens",
+          "It runs on a cheaper model than the rest of the session"
+        ],
+        "answer": 0,
+        "explain": "A skill's name and description (~50\u2013100 tokens) sit in context; the body loads only when the skill is invoked. That's progressive disclosure."
+      },
+      {
+        "stem": "A path-scoped rule in .claude/rules/ loads...",
+        "options": [
+          "Only when you work with files matching its paths globs",
+          "At launch, always, regardless of what you are editing",
+          "Only if you import it from CLAUDE.md with an @ path",
+          "Never automatically; you must invoke it as a command"
+        ],
+        "answer": 0,
+        "explain": "Path-scoped rules use YAML frontmatter paths globs and load only for matching files. Unscoped rules load at launch."
+      },
+      {
+        "stem": "Since skills and commands merged, /release can be created by...",
+        "options": [
+          "Either .claude/skills/release/SKILL.md or .claude/commands/release.md",
+          "Only a SKILL.md; the commands directory was removed",
+          "Only a settings.json entry naming the command",
+          "Only a subagent defined under .claude/agents/"
+        ],
+        "answer": 0,
+        "explain": "Commands merged into skills: a SKILL.md or a commands/*.md both create the slash command. They're two spellings of the same thing."
+      }
+    ]
+    </script>
+  </div>
+
+  <div class="callout callout--teacher">
+    <span class="callout__label">Ask your teacher</span>
+    Want to write a skill for a workflow you repeat, and sharpen its description so it triggers reliably? Bring
+    the workflow.
+  </div>
+
+  <nav class="lesson-nav">
+    <a href="0026-claude-md-hierarchy.html">&larr; CLAUDE.md hierarchy</a>
+    <a href="0028-agents-and-memory.html">Next &middot; Agents &amp; memory &rarr;</a>
+  </nav>
+
+  <footer class="course-foot">CCDV-F &middot; Lesson 0027 &middot; Reference:
+    <a href="../reference/claude-code-files.html">Claude Code files</a></footer>
+</main>
+<script src="../assets/quiz.js"></script>
+</body>
+</html>

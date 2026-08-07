@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Reference · Streaming (SSE) Event Flow</title>
+  <link rel="stylesheet" href="../assets/styles.css">
+</head>
+<body>
+<main class="sheet">
+  <header class="lesson-head">
+    <div class="lesson-kicker">Reference sheet</div>
+    <h1>Streaming (SSE) event flow</h1>
+    <p class="lesson-sub">The exact event order, the delta types, and where the token counts hide.</p>
+    <div class="badges">
+      <span class="badge">Domain 2.3 · API Mechanics</span>
+      <span class="badge">Domain 5.2 · Technical Fundamentals</span>
+    </div>
+  </header>
+
+  <p>Set <code>stream: true</code> and the response arrives as <strong>Server-Sent Events</strong> &mdash;
+  a one-way HTTP stream from server to client (<em>not</em> WebSockets). The order is fixed:</p>
+
+  <pre><code>event: message_start
+data: {"type":"message_start","message":{... "content":[], "usage":{"input_tokens":11,"output_tokens":1}}}
+
+event: content_block_start
+data: {"type":"content_block_start","index":0,"content_block":{"type":"text","text":""}}
+
+event: ping
+data: {"type":"ping"}
+
+event: content_block_delta
+data: {"type":"content_block_delta","index":0,"delta":{"type":"text_delta","text":"Hello"}}
+
+event: content_block_delta
+data: {"type":"content_block_delta","index":0,"delta":{"type":"text_delta","text":" there"}}
+
+event: content_block_stop
+data: {"type":"content_block_stop","index":0}
+
+event: message_delta
+data: {"type":"message_delta","delta":{"stop_reason":"end_turn"},"usage":{"output_tokens":6}}
+
+event: message_stop
+data: {"type":"message_stop"}</code></pre>
+
+  <table>
+    <caption>Event types</caption>
+    <thead><tr><th>Event</th><th>Carries</th></tr></thead>
+    <tbody>
+      <tr><td><code>message_start</code></td><td>The <code>Message</code> with empty <code>content</code> and initial <code>usage</code> (input tokens; output_tokens = 1).</td></tr>
+      <tr><td><code>content_block_start</code></td><td>A new block begins at <code>index</code> (text, tool_use, thinking, &hellip;).</td></tr>
+      <tr><td><code>content_block_delta</code></td><td>An incremental piece for the block at <code>index</code> (see delta types).</td></tr>
+      <tr><td><code>content_block_stop</code></td><td>The block at <code>index</code> is complete. (Repeat the start&rarr;delta&rarr;stop cycle per block.)</td></tr>
+      <tr><td><code>message_delta</code></td><td>Top-level changes: <code>stop_reason</code>, <code>stop_sequence</code>, and cumulative <code>usage.output_tokens</code>.</td></tr>
+      <tr><td><code>message_stop</code></td><td>The stream is finished.</td></tr>
+      <tr><td><code>ping</code></td><td>Keep-alive; may appear any number of times, anywhere.</td></tr>
+      <tr><td><code>error</code></td><td>Mid-stream error (e.g. <code>overloaded_error</code>).</td></tr>
+    </tbody>
+  </table>
+
+  <table>
+    <caption>Delta types inside <code>content_block_delta</code></caption>
+    <thead><tr><th><code>delta.type</code></th><th>Meaning</th></tr></thead>
+    <tbody>
+      <tr><td><code>text_delta</code></td><td>A chunk of visible text &mdash; concatenate <code>.text</code>.</td></tr>
+      <tr><td><code>input_json_delta</code></td><td>A tool call&rsquo;s arguments as <code>partial_json</code> &mdash; concatenate the string, then parse once.</td></tr>
+      <tr><td><code>thinking_delta</code></td><td>Extended / adaptive thinking text &mdash; concatenate <code>.thinking</code>.</td></tr>
+    </tbody>
+  </table>
+
+  <div class="callout callout--warn">
+    <span class="callout__label">Where the tokens are</span>
+    Input tokens land once on <code>message_start</code>; output tokens accumulate and are reported on
+    <code>message_delta</code>. There is no single &ldquo;usage&rdquo; event &mdash; you read both ends of the stream.
+  </div>
+
+  <div class="callout callout--source">
+    <span class="callout__label">Primary source</span>
+    <a href="https://platform.claude.com/docs/en/build-with-claude/streaming">Streaming &mdash; Claude Platform Docs</a>.
+    The wire example mirrors the SSE fixtures in
+    <a href="https://github.com/anthropics/anthropic-sdk-python">anthropic-sdk-python</a>.
+  </div>
+
+  <footer class="course-foot">
+    CCDV-F reference &middot; used by
+    <a href="../lessons/0003-streaming-sse.html">Lesson 0003 &mdash; Streaming</a>.
+  </footer>
+</main>
+</body>
+</html>

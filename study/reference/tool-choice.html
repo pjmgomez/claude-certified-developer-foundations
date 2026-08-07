@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Reference · tool_choice &amp; tool types</title>
+  <link rel="stylesheet" href="../assets/styles.css">
+</head>
+<body>
+<main class="sheet">
+  <header class="lesson-head">
+    <div class="lesson-kicker">Reference sheet</div>
+    <h1>Directing tools: <code>tool_choice</code> &amp; tool types</h1>
+    <p class="lesson-sub">Who decides when a tool runs, and where the tool actually executes.</p>
+    <div class="badges"><span class="badge">Domain 8.1 · Tool Implementation</span></div>
+  </header>
+
+  <table>
+    <caption><code>tool_choice</code> &mdash; four options</caption>
+    <thead><tr><th>Value</th><th>Behaviour</th></tr></thead>
+    <tbody>
+      <tr><td><code>{"type":"auto"}</code></td><td>Model decides whether to use tools. <strong>Default when <code>tools</code> is present.</strong> May call zero or more.</td></tr>
+      <tr><td><code>{"type":"any"}</code></td><td>Model <em>must</em> use a tool, but picks which.</td></tr>
+      <tr><td><code>{"type":"tool","name":"x"}</code></td><td>Force the named tool. Use this to guarantee structured output from one known tool.</td></tr>
+      <tr><td><code>{"type":"none"}</code></td><td>No tools. <strong>Default when <code>tools</code> is absent.</strong></td></tr>
+    </tbody>
+  </table>
+
+  <p><code>auto</code>, <code>any</code>, and <code>tool</code> accept
+  <code>disable_parallel_tool_use</code> (default <code>false</code>). Set it <code>true</code> to force
+  <strong>exactly one</strong> tool call.</p>
+
+  <div class="callout callout--warn">
+    <span class="callout__label">Cache gotcha</span>
+    Changing <code>tool_choice</code> (or the <code>tools</code> array) between calls invalidates cached
+    message blocks &mdash; it changes the tool preamble the cache is keyed on.
+  </div>
+
+  <h2>Parallel tool use</h2>
+  <p>Claude 4+ models call tools in parallel by default: one assistant turn can contain
+  <strong>multiple <code>tool_use</code> blocks</strong>. Execute them all, then return
+  <strong>all</strong> the <code>tool_result</code> blocks in a single following user turn.</p>
+
+  <table>
+    <caption>Client tools vs. server tools</caption>
+    <thead><tr><th>Client tools</th><th>Server tools</th></tr></thead>
+    <tbody>
+      <tr>
+        <td>Run <strong>in your application</strong>. You execute them and return a <code>tool_result</code>.</td>
+        <td>Run <strong>on Anthropic infrastructure</strong>. Anthropic executes them; results come back inline.</td>
+      </tr>
+      <tr>
+        <td>Your custom tools; Anthropic-schema helpers you host, e.g. <code>bash</code>, <code>text_editor</code>.</td>
+        <td><code>web_search</code>, <code>web_fetch</code>, <code>code_execution</code>, <code>memory</code>, <code>tool_search</code>.</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="callout callout--source">
+    <span class="callout__label">Primary source</span>
+    <a href="https://platform.claude.com/docs/en/agents-and-tools/tool-use/overview">Tool use overview</a>.
+    Option shapes verified against <code>ToolChoiceParam</code> in
+    <a href="https://github.com/anthropics/anthropic-sdk-python">anthropic-sdk-python</a>.
+  </div>
+
+  <footer class="course-foot">CCDV-F reference &middot; used by
+    <a href="../lessons/0007-directing-tools.html">Lesson 0007</a>.</footer>
+</main>
+</body>
+</html>

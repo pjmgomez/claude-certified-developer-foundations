@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Reference · Structured outputs</title>
+  <link rel="stylesheet" href="../assets/styles.css">
+</head>
+<body>
+<main class="sheet">
+  <header class="lesson-head">
+    <div class="lesson-kicker">Reference sheet</div>
+    <h1>Structured outputs</h1>
+    <p class="lesson-sub">Two ways to <em>guarantee</em> valid shapes &mdash; response JSON, or tool arguments.</p>
+    <div class="badges"><span class="badge">Domain 6.3 · Output Handling</span></div>
+  </header>
+
+  <table>
+    <caption>Two complementary features</caption>
+    <thead><tr><th></th><th>JSON outputs</th><th>Strict tool use</th></tr></thead>
+    <tbody>
+      <tr><td>Constrains</td><td>Claude&rsquo;s <strong>response text</strong> to valid JSON.</td><td>A tool call&rsquo;s <strong>arguments</strong> to match <code>input_schema</code>.</td></tr>
+      <tr><td>How</td><td><code>output_config={"format": {"type":"json_schema","schema":{...}}}</code></td><td><code>strict: true</code> on the tool.</td></tr>
+      <tr><td>Result lands in</td><td><code>content[0].text</code> as guaranteed-valid JSON.</td><td>The <code>tool_use.input</code> of the call.</td></tr>
+      <tr><td>Use when</td><td>You want a JSON answer back.</td><td>You&rsquo;re inside an agent / function-calling loop.</td></tr>
+    </tbody>
+  </table>
+
+  <p>They can be <strong>combined</strong> in one request. Both are gated behind a beta header (e.g.
+  <code>structured-outputs-2025-12-15</code> &mdash; verify the current value).</p>
+
+  <pre><code>schema = {"type": "object",
+          "properties": {"name": {"type": "string"}, "age": {"type": "integer"}},
+          "required": ["name", "age"]}
+
+resp = client.messages.create(
+    model="claude-sonnet-5", max_tokens=200,
+    output_config={"format": {"type": "json_schema", "schema": schema}},
+    messages=[{"role": "user", "content": "Extract: John Doe is 30."}],
+)
+import json
+data = json.loads(resp.content[0].text)     # guaranteed to parse</code></pre>
+
+  <p><strong>SDK helper:</strong> <code>client.messages.parse(output_format=PydanticModel, ...)</code> converts a
+  Pydantic model to <code>output_config.format</code> and parses the reply for you. (The older
+  <code>output_format=</code> keyword is deprecated in favour of <code>output_config.format</code>.)</p>
+
+  <div class="callout callout--warn">
+    <span class="callout__label">Sharp edges</span>
+    Incompatible with <strong>citations</strong> and <strong>prefilling</strong>. Only a <em>subset</em> of JSON
+    Schema is enforced &mdash; unsupported keywords (like <code>minimum</code>) become description hints your code
+    must still check. The schema is compiled and cached (~24h). Validate anyway: guaranteed shape is not
+    guaranteed correctness.
+  </div>
+
+  <div class="callout callout--source">
+    <span class="callout__label">Primary source</span>
+    <a href="https://platform.claude.com/docs/en/build-with-claude/structured-outputs">Structured outputs</a>.
+    Verified against <code>JSONOutputFormatParam</code>, <code>messages.parse()</code>, and tool <code>strict</code>
+    in <a href="https://github.com/anthropics/anthropic-sdk-python">anthropic-sdk-python</a>.
+  </div>
+  <footer class="course-foot">CCDV-F reference &middot; used by
+    <a href="../lessons/0018-structured-outputs.html">Lesson 0018</a>.</footer>
+</main>
+</body>
+</html>

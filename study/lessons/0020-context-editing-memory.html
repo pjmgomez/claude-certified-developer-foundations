@@ -1,0 +1,120 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Phase 4 · Context editing, compaction &amp; memory</title>
+  <link rel="stylesheet" href="../assets/styles.css">
+</head>
+<body>
+<main>
+  <header class="lesson-head">
+    <div class="lesson-kicker">Phase 4 · Prompt &amp; Context Engineering</div>
+    <h1>Context editing, compaction &amp; memory</h1>
+    <p class="lesson-sub">Let the platform prune, summarise, and remember &mdash; so long runs don&rsquo;t rot.</p>
+    <div class="badges"><span class="badge">Domain 6.1 · Context Engineering</span></div>
+  </header>
+
+  <p>Manual pruning (last lesson) gets you far; for long agents you want the platform to do it. Three managed
+  tools: <strong>context editing</strong> clears old tool results, <strong>compaction</strong> summarises older
+  turns, and the <strong>memory tool</strong> persists facts to files across conversations.</p>
+
+  <p><strong>Your win:</strong> configure context editing so an agent auto-clears stale tool results while
+  protecting its memory.</p>
+
+  <div class="callout callout--source">
+    <span class="callout__label">Read alongside</span>
+    The <a href="../reference/context-management.html">context-management sheet</a>. All of this is beta &mdash;
+    use <code>client.beta.messages</code> with the <code>context-management-2025-06-27</code> header.
+  </div>
+
+  <h2>Do it</h2>
+  <ol class="steps">
+    <li>Auto-clear old tool results once the window grows &mdash; but never clear memory:
+      <pre><code>ctx = {"edits": [{
+    "type": "clear_tool_uses_20250919",
+    "trigger": {"type": "input_tokens", "value": 30000},   # clear when input passes 30k
+    "keep":    {"type": "tool_uses",    "value": 3},       # retain the 3 most recent
+    "exclude_tools": ["memory"],                            # protect memory writes
+}]}
+
+resp = client.beta.messages.create(
+    model="claude-sonnet-5", max_tokens=1024,
+    betas=["context-management-2025-06-27"],
+    context_management=ctx,
+    tools=[...], messages=[...],
+)
+for e in (resp.context_management.applied_edits if resp.context_management else []):
+    print("applied:", e.type, e.cleared_input_tokens)</code></pre></li>
+    <li>Prefer summarising over deleting? Swap in server-side compaction:
+      <pre><code>ctx = {"edits": [{"type": "compact_20260112"}]}   # trigger defaults to ~150k input tokens</code></pre></li>
+    <li>Add durable memory with the <code>memory</code> tool (CRUD over <code>/memories</code>), and keep it in
+      <code>exclude_tools</code> so editing never erases it:
+      <pre><code>tools = [{"type": "memory_20250818", "name": "memory"}]   # SDK: BetaLocalFilesystemMemoryTool</code></pre></li>
+  </ol>
+
+  <div class="callout callout--warn">
+    <span class="callout__label">Editing + memory is the combo</span>
+    Anthropic reports memory + context editing beat baseline by <strong>~39%</strong> (editing alone ~29%), with
+    up to <strong>84%</strong> fewer tokens on a long web-search eval. The trap: if you clear tool uses without
+    excluding <code>memory</code>, you delete the very notes you're relying on.
+  </div>
+
+  <h2>Check yourself</h2>
+  <div class="quiz">
+    <script type="application/json">
+    [
+      {
+        "stem": "Context editing (clear_tool_uses_20250919) does what?",
+        "options": [
+          "Clears old tool results once a threshold trips",
+          "Summarizes the whole conversation into one block",
+          "Caches the system prompt for a cheaper next call",
+          "Streams tool arguments as incremental JSON deltas"
+        ],
+        "answer": 0,
+        "explain": "It removes stale tool results (keeping the most recent N) when a trigger like input_tokens is exceeded. Compaction is the summarizing one."
+      },
+      {
+        "stem": "When you enable tool-use clearing alongside the memory tool, you should...",
+        "options": [
+          "Add memory to exclude_tools so it isn't wiped",
+          "Lower the trigger so clearing runs on every turn",
+          "Disable memory, since the two cannot be combined",
+          "Route all memory writes through the system prompt"
+        ],
+        "answer": 0,
+        "explain": "exclude_tools protects chosen tools from clearing. Leave memory out of that list and context editing will erase your own notes."
+      },
+      {
+        "stem": "The memory tool persists data...",
+        "options": [
+          "As files under /memories, across conversations",
+          "Only within a single request's context window",
+          "Inside the model weights via lightweight tuning",
+          "In the prompt cache, expiring after five minutes"
+        ],
+        "answer": 0,
+        "explain": "Memory is file-based CRUD over the /memories directory that survives across conversations \u2014 distinct from the ephemeral context window."
+      }
+    ]
+    </script>
+  </div>
+
+  <div class="callout callout--teacher">
+    <span class="callout__label">Ask your teacher</span>
+    Want to watch <code>applied_edits</code> fire on a long synthetic conversation, or compare clearing vs
+    compaction on the same run? Ask and we&rsquo;ll set it up.
+  </div>
+
+  <nav class="lesson-nav">
+    <a href="0019-context-engineering.html">&larr; Context engineering</a>
+    <span>Phase 4 complete &middot; Phase 5 (Agents &amp; workflows) up next</span>
+  </nav>
+
+  <footer class="course-foot">CCDV-F &middot; Lesson 0020 &middot; Reference:
+    <a href="../reference/context-management.html">Context management</a></footer>
+</main>
+<script src="../assets/quiz.js"></script>
+</body>
+</html>

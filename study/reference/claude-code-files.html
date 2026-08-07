@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Reference · Claude Code files</title>
+  <link rel="stylesheet" href="../assets/styles.css">
+</head>
+<body>
+<main class="sheet">
+  <header class="lesson-head">
+    <div class="lesson-kicker">Reference sheet</div>
+    <h1>Claude Code files &amp; loading</h1>
+    <p class="lesson-sub">What lives where, when it loads, and who wins.</p>
+    <div class="badges"><span class="badge">Domain 3 · Claude Code Operation</span></div>
+  </header>
+
+  <div class="callout callout--warn">
+    <span class="callout__label">Paths drift</span>
+    Exact paths and env-var names evolve; confirm against
+    <a href="https://code.claude.com/docs/en/memory">code.claude.com/docs</a> before relying on them.
+  </div>
+
+  <h2>CLAUDE.md hierarchy</h2>
+  <p>Loaded broad &rarr; specific and <strong>concatenated</strong> (later files add to, don&rsquo;t override):</p>
+  <table>
+    <thead><tr><th>Tier</th><th>Location</th></tr></thead>
+    <tbody>
+      <tr><td>Managed policy</td><td><code>/etc/claude-code/CLAUDE.md</code> (Linux), <code>/Library/Application Support/ClaudeCode/CLAUDE.md</code> (mac), <code>C:\Program Files\ClaudeCode\CLAUDE.md</code> (Win)</td></tr>
+      <tr><td>User</td><td><code>~/.claude/CLAUDE.md</code></td></tr>
+      <tr><td>Project</td><td><code>./CLAUDE.md</code> or <code>./.claude/CLAUDE.md</code></td></tr>
+      <tr><td>Local (gitignored)</td><td><code>./CLAUDE.local.md</code></td></tr>
+    </tbody>
+  </table>
+  <p>Files at/above cwd load <strong>in full at launch</strong>; subdirectory files load <strong>on demand</strong>.
+  Target <strong>&lt; 200 lines</strong>. Import with <code>@path</code> (max depth 4 hops).
+  <code>/init</code> generates a starter (and reads <code>.cursor/rules/</code>, <code>.cursorrules</code>,
+  <code>.github/copilot-instructions.md</code>).</p>
+
+  <h2>Rules &mdash; <code>.claude/rules/</code></h2>
+  <p>Markdown auto-loaded <em>alongside</em> CLAUDE.md (no import needed). <strong>Unscoped</strong> rules load at
+  launch (same priority as <code>.claude/CLAUDE.md</code>); <strong>path-scoped</strong> rules use YAML
+  frontmatter <code>paths:</code> globs and load only for matching files. User rules
+  (<code>~/.claude/rules/</code>) load before project rules, so project wins.</p>
+
+  <h2>Skills &mdash; <code>.claude/skills/&lt;name&gt;/SKILL.md</code></h2>
+  <p>YAML frontmatter (<code>name</code> + <code>description</code>) loads at startup (~50&ndash;100 tokens); the
+  <strong>body loads only on invoke</strong> &mdash; <em>progressive disclosure</em>. Keep the body &lt; ~500 lines.
+  Commands merged into skills: <code>.claude/commands/deploy.md</code> and
+  <code>.claude/skills/deploy/SKILL.md</code> both create <code>/deploy</code>.</p>
+
+  <h2>Agents &mdash; <code>.claude/agents/</code></h2>
+  <p>Markdown + YAML frontmatter (<code>name</code>, <code>description</code>, optional <code>model</code> + tool
+  access). Each runs in a <strong>fresh context window</strong>; only the final message returns. Built-ins:
+  Explore, Plan, general-purpose. Nest up to 5 levels. Subagents don&rsquo;t inherit skills unless listed.</p>
+
+  <h2>Agent Memory (auto memory)</h2>
+  <p>Claude-<em>written</em> learnings under <code>~/.claude/projects/&lt;project&gt;/memory/</code> with a
+  <code>MEMORY.md</code> entrypoint. The <strong>first 200 lines of MEMORY.md (or first 25KB), whichever comes
+  first, load at the start of every conversation</strong>; topic files load on demand. Toggle via
+  <code>/memory</code>, <code>autoMemoryEnabled</code>, or <code>CLAUDE_CODE_DISABLE_AUTO_MEMORY=1</code>.
+  Distinct from CLAUDE.md, which <em>you</em> write.</p>
+
+  <div class="callout callout--source">
+    <span class="callout__label">Primary source</span>
+    <a href="https://code.claude.com/docs/en/memory">memory</a> ·
+    <a href="https://code.claude.com/docs/en/skills">skills</a> ·
+    <a href="https://code.claude.com/docs/en/sub-agents">sub-agents</a>.
+  </div>
+  <footer class="course-foot">CCDV-F reference &middot; used by
+    <a href="../lessons/0026-claude-md-hierarchy.html">Lesson 0026</a>,
+    <a href="../lessons/0027-rules-skills-commands.html">0027</a>,
+    <a href="../lessons/0028-agents-and-memory.html">0028</a>.</footer>
+</main>
+</body>
+</html>

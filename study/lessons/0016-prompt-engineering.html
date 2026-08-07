@@ -1,0 +1,124 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Phase 4 · Prompt engineering essentials</title>
+  <link rel="stylesheet" href="../assets/styles.css">
+</head>
+<body>
+<main>
+  <header class="lesson-head">
+    <div class="lesson-kicker">Phase 4 · Prompt &amp; Context Engineering</div>
+    <h1>Prompt engineering essentials</h1>
+    <p class="lesson-sub">Clear instructions, examples, XML boundaries, and the right home for each instruction.</p>
+    <div class="badges">
+      <span class="badge">Domain 6.2 · Prompt Engineering</span>
+      <span class="badge badge--weight">Domain 6 = 11%</span>
+    </div>
+  </header>
+
+  <p>Most &ldquo;the model got it wrong&rdquo; problems are really &ldquo;the prompt was ambiguous.&rdquo; Four
+  levers do the heavy lifting: be explicit, show examples, mark boundaries with XML, and place each instruction
+  where it belongs.</p>
+
+  <p><strong>Your win:</strong> take a vague prompt and make it reliable with a role, an example, and XML-tagged
+  data.</p>
+
+  <h2>The levers</h2>
+  <ul>
+    <li><strong>Be clear and direct.</strong> State the task, the format, and the constraints explicitly &mdash;
+      don&rsquo;t make the model guess.</li>
+    <li><strong>Multishot (few-shot).</strong> Show 2&ndash;3 worked examples wrapped in <code>&lt;example&gt;</code>
+      tags. Examples beat adjectives.</li>
+    <li><strong>XML tags.</strong> Claude was trained on XML structure &mdash; wrap inputs and sections in
+      semantic tags (<code>&lt;instructions&gt;</code>, <code>&lt;data&gt;</code>, <code>&lt;example&gt;</code>).
+      This also <em>separates trusted instructions from untrusted data</em> (Phase 7).</li>
+    <li><strong>System vs. user placement.</strong> Put high-level role / scene-setting in the
+      <code>system</code> prompt; put the specific task instructions in the user turn, where Claude follows them well.</li>
+  </ul>
+
+  <h2>Do it</h2>
+  <ol class="steps">
+    <li>Start vague: <code>"Summarize this."</code> &mdash; and note the wandering result.</li>
+    <li>Rebuild it with structure:
+      <pre><code>system = "You are a precise financial analyst. Output exactly three bullet points."
+
+user = """&lt;instructions&gt;
+Summarize the report for a busy executive. Lead with the number that moved most.
+&lt;/instructions&gt;
+
+&lt;example&gt;
+- Revenue up 12% QoQ, driven by EMEA.
+- Margin flat at 31%.
+- Cash runway: 18 months.
+&lt;/example&gt;
+
+&lt;report&gt;
+{PASTE THE REPORT HERE}
+&lt;/report&gt;"""</code></pre></li>
+    <li>Run both and compare. The structured version should be tighter, on-format, and repeatable.</li>
+  </ol>
+
+  <div class="callout callout--warn">
+    <span class="callout__label">With adaptive thinking, don&rsquo;t over-prompt</span>
+    Manual &ldquo;think step by step&rdquo; chain-of-thought is largely unnecessary when adaptive thinking is on
+    (Phase 3). Reach for the <code>effort</code> dial instead of hand-written reasoning scaffolds.
+  </div>
+
+  <h2>Check yourself</h2>
+  <div class="quiz">
+    <script type="application/json">
+    [
+      {
+        "stem": "Where do high-level role and scene-setting instructions belong?",
+        "options": [
+          "In the system prompt, with task detail in the user turn",
+          "In the user turn, with nothing ever in the system prompt",
+          "Split evenly and duplicated across both for redundancy",
+          "In a tool description, so the model reads it every call"
+        ],
+        "answer": 0,
+        "explain": "System prompt = role and scene-setting; user turn = the specific task instructions Claude follows most closely. Don't duplicate."
+      },
+      {
+        "stem": "Why wrap inputs and sections in XML tags?",
+        "options": [
+          "Claude was trained on XML and it marks clear boundaries",
+          "XML is required syntax or the Messages API rejects it",
+          "It compresses the prompt to use noticeably fewer tokens",
+          "It disables the model's safety filters for that content"
+        ],
+        "answer": 0,
+        "explain": "Semantic XML tags help Claude parse structure and separate trusted instructions from untrusted data. No fixed tag names are required."
+      },
+      {
+        "stem": "The most reliable way to pin down an output format is to...",
+        "options": [
+          "Show a couple of worked examples of the exact format",
+          "Raise temperature so the model explores more formats",
+          "Add the word 'please' and hope it complies this time",
+          "Make the prompt as long as possible with many caveats"
+        ],
+        "answer": 0,
+        "explain": "Multishot examples of the target format beat adjectives and pleading. (For hard guarantees, structured outputs \u2014 next lessons.)"
+      }
+    ]
+    </script>
+  </div>
+
+  <div class="callout callout--teacher">
+    <span class="callout__label">Ask your teacher</span>
+    Bring a prompt that misbehaves and we&rsquo;ll refactor it together with the prompt improver mindset.
+  </div>
+
+  <nav class="lesson-nav">
+    <a href="0015-batch-api.html">&larr; Batch API</a>
+    <a href="0017-steering-output.html">Next &middot; Steering output &rarr;</a>
+  </nav>
+
+  <footer class="course-foot">CCDV-F &middot; Lesson 0016</footer>
+</main>
+<script src="../assets/quiz.js"></script>
+</body>
+</html>

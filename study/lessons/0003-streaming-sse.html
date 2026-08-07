@@ -1,0 +1,132 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Phase 1 · Streaming, event by event</title>
+  <link rel="stylesheet" href="../assets/styles.css">
+</head>
+<body>
+<main>
+  <header class="lesson-head">
+    <div class="lesson-kicker">Phase 1 · Core API Mechanics</div>
+    <h1>Streaming, event by event</h1>
+    <p class="lesson-sub">Show tokens as they land &mdash; and know the exact event order behind the magic.</p>
+    <div class="badges">
+      <span class="badge">Domain 2.3 · API Mechanics</span>
+      <span class="badge">Domain 5.2 · Technical Fundamentals</span>
+    </div>
+  </header>
+
+  <p>A non-streamed call blocks until the whole answer is ready. Streaming delivers the reply incrementally
+  over <strong>Server-Sent Events</strong> (one-way HTTP, not WebSockets), so a UI can render as Claude types.
+  The SDK gives you an ergonomic helper <em>and</em> the raw event stream underneath.</p>
+
+  <p><strong>Your win:</strong> stream a reply to the terminal live, then reconstruct the final message and read
+  its usage &mdash; and separately watch the raw event names go by.</p>
+
+  <div class="callout callout--source">
+    <span class="callout__label">Read alongside</span>
+    Keep the <a href="../reference/streaming-events.html">SSE event-flow reference</a> open. The order is fixed:
+    <code>message_start &rarr; content_block_start &rarr; content_block_delta&hellip; &rarr; content_block_stop
+    &rarr; message_delta &rarr; message_stop</code> (with <code>ping</code>s sprinkled in).
+  </div>
+
+  <h2>Do it</h2>
+  <ol class="steps">
+    <li>Stream with the helper and print text as it arrives:
+      <pre><code>import anthropic
+
+client = anthropic.Anthropic()
+MODEL = "claude-sonnet-5"
+
+with client.messages.stream(
+    model=MODEL, max_tokens=300,
+    messages=[{"role": "user", "content": "Write a haiku about streaming."}],
+) as stream:
+    for event in stream:
+        if event.type == "text":            # a text_delta helper event
+            print(event.text, end="", flush=True)
+print()
+
+final = stream.get_final_message()          # full Message, accumulated for you
+print("stop_reason:", final.stop_reason,
+      "| output tokens:", final.usage.output_tokens)</code></pre></li>
+    <li>Now watch the <em>raw</em> events to see the order for yourself:
+      <pre><code>raw = client.messages.create(
+    model=MODEL, max_tokens=100, stream=True,
+    messages=[{"role": "user", "content": "Say hi in three words."}],
+)
+for event in raw:
+    print(event.type)    # message_start, content_block_start, content_block_delta, ...</code></pre></li>
+    <li>Confirm you see input tokens on <code>message_start</code> and the final
+      <code>stop_reason</code> + output tokens on <code>message_delta</code> &mdash; there is no single
+      &ldquo;usage&rdquo; event.</li>
+  </ol>
+
+  <div class="callout callout--lab">
+    <span class="callout__label">Why it matters later</span>
+    Tool calls stream too &mdash; their arguments arrive as <code>input_json_delta</code> fragments
+    (<code>partial_json</code>) that you concatenate and parse once. Same envelope, different delta type.
+  </div>
+
+  <h2>Check yourself</h2>
+  <div class="quiz">
+    <script type="application/json">
+    [
+      {
+        "stem": "Which sequence is the correct streaming event order?",
+        "options": [
+          "message_start, then the content blocks, then message_stop",
+          "message_stop, then the content blocks, then message_start",
+          "content_block_start, then message_start, then a ping event",
+          "message_delta, then message_start, then the text deltas"
+        ],
+        "answer": 0,
+        "explain": "It opens with message_start, streams one or more content blocks (start / deltas / stop), then message_delta, then message_stop."
+      },
+      {
+        "stem": "A tool call's arguments arrive during streaming as which delta?",
+        "options": [
+          "input_json_delta: partial_json you concatenate then parse",
+          "text_delta: plain visible text you can print directly",
+          "thinking_delta: reasoning tokens you may show the user",
+          "message_delta: the final stop_reason for the whole turn"
+        ],
+        "answer": 0,
+        "explain": "Tool arguments stream as input_json_delta fragments (partial_json). Join the strings, then parse the JSON once at the end."
+      },
+      {
+        "stem": "Where does the cumulative output-token count arrive?",
+        "options": [
+          "On message_delta, in its usage field near the end",
+          "On message_start, in its usage field at the start",
+          "On content_block_stop, once for every single block",
+          "On each ping event, carrying a running subtotal"
+        ],
+        "answer": 0,
+        "explain": "Input tokens are on message_start; the accumulating output_tokens is reported on message_delta. You read both ends of the stream."
+      }
+    ]
+    </script>
+  </div>
+
+  <div class="callout callout--teacher">
+    <span class="callout__label">Ask your teacher</span>
+    Want to see how to buffer <code>input_json_delta</code> into a real tool call, or handle a mid-stream
+    <code>error</code> event? Ask &mdash; we&rsquo;ll wire it up in Phase&nbsp;2.
+  </div>
+
+  <nav class="lesson-nav">
+    <a href="0002-messages-api-anatomy.html">&larr; Messages anatomy</a>
+    <a href="0004-multimodal-input.html">Next &middot; Multimodal input &rarr;</a>
+  </nav>
+
+  <footer class="course-foot">
+    CCDV-F &middot; Lesson 0003 &middot; Reference:
+    <a href="../reference/streaming-events.html">SSE event flow</a>
+  </footer>
+</main>
+<script src="../assets/quiz.js"></script>
+</body>
+</html>

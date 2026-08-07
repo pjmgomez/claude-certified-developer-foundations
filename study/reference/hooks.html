@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Reference · Claude hooks</title>
+  <link rel="stylesheet" href="../assets/styles.css">
+</head>
+<body>
+<main class="sheet">
+  <header class="lesson-head">
+    <div class="lesson-kicker">Reference sheet</div>
+    <h1>Claude Code hooks</h1>
+    <p class="lesson-sub">The deterministic &ldquo;must-do&rdquo; layer &mdash; run code at lifecycle events, block destructive ones.</p>
+    <div class="badges"><span class="badge">Domain 7.3 · Claude Hooks</span></div>
+  </header>
+
+  <p>Hooks are shell commands / callbacks that fire at lifecycle events. In <code>settings.json</code> they nest
+  three levels: <strong>event &rarr; matcher group &rarr; handler</strong>. Matchers support regex (e.g.
+  <code>Edit|Write</code>).</p>
+
+  <table>
+    <caption>Key events</caption>
+    <thead><tr><th>Event</th><th>Use</th></tr></thead>
+    <tbody>
+      <tr><td><strong>PreToolUse</strong></td><td>Before a tool runs &mdash; <strong>can block</strong>. The place for destructive-action guardrails.</td></tr>
+      <tr><td><strong>PostToolUse</strong></td><td>After success &mdash; auto-format / lint. Cannot undo.</td></tr>
+      <tr><td><strong>UserPromptSubmit</strong></td><td>Inject context or reject a prompt.</td></tr>
+      <tr><td>Stop / SubagentStop</td><td>End of a turn / subagent.</td></tr>
+      <tr><td>PreCompact / SessionStart / Notification</td><td>Lifecycle taps.</td></tr>
+      <tr><td><strong>PermissionRequest</strong></td><td>Gate a permission &mdash; <strong>does NOT fire in headless mode</strong>.</td></tr>
+    </tbody>
+  </table>
+
+  <h2>Blocking with PreToolUse</h2>
+  <p><strong>Shell form (settings.json):</strong> exit code <code>2</code> denies, <code>0</code> allows,
+  <code>1</code> warns. A <strong>deny is evaluated before permission-mode checks</strong>, so it blocks even
+  under <code>bypassPermissions</code> / <code>--dangerously-skip-permissions</code>.</p>
+  <p><strong>SDK form (callback):</strong></p>
+  <pre><code>async def guard(input_data, tool_use_id, context):
+    if input_data.get("tool_name") == "Bash":
+        cmd = input_data.get("tool_input", {}).get("command", "")
+        if "rm -rf" in cmd:
+            return {"hookSpecificOutput": {
+                "hookEventName": "PreToolUse",
+                "permissionDecision": "deny",              # allow | deny | ask | defer
+                "permissionDecisionReason": "Refusing destructive rm -rf."}}
+    return {}                                              # {} = allow
+
+options = ClaudeAgentOptions(
+    allowed_tools=["Bash"],
+    hooks={"PreToolUse": [HookMatcher(matcher="Bash", hooks=[guard])]})</code></pre>
+
+  <div class="callout callout--warn">
+    <span class="callout__label">Hooks vs CLAUDE.md</span>
+    Hooks are the deterministic <strong>&ldquo;must-do&rdquo;</strong> layer; CLAUDE.md is the
+    <strong>&ldquo;should-do&rdquo;</strong> layer. For anything that must not happen, use a PreToolUse hook &mdash;
+    not a polite prose rule.
+  </div>
+
+  <div class="callout callout--source">
+    <span class="callout__label">Primary source</span>
+    <a href="https://code.claude.com/docs/en/hooks">Claude Code hooks</a>. Events &amp; output shape verified
+    against <code>HookEvent</code> / <code>PreToolUseHookSpecificOutput</code> in
+    <a href="https://github.com/anthropics/claude-agent-sdk-python">claude-agent-sdk-python</a>.
+  </div>
+  <footer class="course-foot">CCDV-F reference &middot; used by
+    <a href="../lessons/0033-claude-hooks.html">Lesson 0033</a>.</footer>
+</main>
+</body>
+</html>

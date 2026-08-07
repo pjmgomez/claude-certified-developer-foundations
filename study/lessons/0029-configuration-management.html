@@ -1,0 +1,110 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Phase 6 · Configuration management</title>
+  <link rel="stylesheet" href="../assets/styles.css">
+</head>
+<body>
+<main>
+  <header class="lesson-head">
+    <div class="lesson-kicker">Phase 6 · Configuration</div>
+    <h1>Configuration management</h1>
+    <p class="lesson-sub">settings.json layers, version pinning, and treating prompts like code.</p>
+    <div class="badges"><span class="badge">Domain 2.6 · Configuration Management</span></div>
+  </header>
+
+  <p>Shipping Claude reliably means managing configuration the way you manage code: known precedence, pinned
+  versions, and prompts that are versioned and reviewed. Small config drift is a top cause of &ldquo;it worked
+  yesterday.&rdquo;</p>
+
+  <p><strong>Your win:</strong> place a setting at the right layer, and choose a model string you&rsquo;d actually
+  deploy.</p>
+
+  <div class="callout callout--source">
+    <span class="callout__label">Read alongside</span>
+    The <a href="../reference/claude-code-config.html">config sheet</a> (settings.json layers + pinning) and
+    <a href="0011-model-selection.html">Lesson 0011</a> for the versioning trap.
+  </div>
+
+  <h2>The levers</h2>
+  <ul>
+    <li><strong>settings.json layers.</strong> Managed policy &gt; user (<code>~/.claude/settings.json</code>)
+      &gt; project (<code>.claude/settings.json</code>) &gt; local (<code>.claude/settings.local.json</code>,
+      gitignored). Put team rules in project; put machine-specific or secret-ish bits in local.</li>
+    <li><strong>Model version pinning.</strong> Pin an explicit version in production. Remember the trap: since
+      4.6, a <em>dateless</em> ID like <code>claude-opus-5</code> is already a pinned snapshot, not an evergreen
+      pointer &mdash; re-test on every upgrade.</li>
+    <li><strong>Prompt versioning.</strong> Version prompts alongside code. Changing <code>tool_choice</code>,
+      the thinking config, or <code>budget_tokens</code> invalidates prompt-cache breakpoints &mdash; treat a
+      prompt change like a code change (review + test).</li>
+    <li><strong>Plugin dependencies.</strong> A plugin (<code>.claude-plugin/plugin.json</code>) bundles skills,
+      agents, hooks, and MCP servers; its manifest declares what it provides so a whole config travels together.</li>
+  </ul>
+
+  <div class="callout callout--warn">
+    <span class="callout__label">Put the setting in the right place</span>
+    A secret or machine path in the committed project <code>settings.json</code> leaks to the whole team. Local,
+    gitignored settings exist precisely for that &mdash; and secrets belong in the environment, not any settings
+    file (Phase 7).
+  </div>
+
+  <h2>Check yourself</h2>
+  <div class="quiz">
+    <script type="application/json">
+    [
+      {
+        "stem": "A machine-specific override you must NOT commit belongs in...",
+        "options": [
+          ".claude/settings.local.json, which is gitignored",
+          ".claude/settings.json, the shared project file",
+          "~/.claude/settings.json, the user-global file",
+          "The managed enterprise policy settings file"
+        ],
+        "answer": 0,
+        "explain": "settings.local.json is the gitignored, machine-local layer. The shared project settings.json would leak the override to the whole team."
+      },
+      {
+        "stem": "For a production deployment, the safest model string is...",
+        "options": [
+          "An explicit pinned version, re-tested on each upgrade",
+          "A convenience alias, so you always get the newest build",
+          "Whatever the SDK defaults to when you omit the field",
+          "A dateless 5-series id, assuming it tracks the latest"
+        ],
+        "answer": 0,
+        "explain": "Pin explicitly and re-test on upgrades. And note: since 4.6 a dateless id is itself a pinned snapshot, not an evergreen pointer."
+      },
+      {
+        "stem": "Why version prompts alongside code?",
+        "options": [
+          "A prompt change is a behavior change; review and test it",
+          "Prompts are immutable once shipped and never change",
+          "The API rejects any prompt that isn't version-tagged",
+          "Versioning prompts makes every cache read cost less"
+        ],
+        "answer": 0,
+        "explain": "Prompts drive behavior; a change can even invalidate cache breakpoints. Treat prompt edits like code edits \u2014 versioned, reviewed, tested."
+      }
+    ]
+    </script>
+  </div>
+
+  <div class="callout callout--teacher">
+    <span class="callout__label">Ask your teacher</span>
+    Want a checklist for what belongs in each settings layer, or a prompt-versioning workflow? Ask and we&rsquo;ll
+    draft one.
+  </div>
+
+  <nav class="lesson-nav">
+    <a href="0028-agents-and-memory.html">&larr; Agents &amp; memory</a>
+    <a href="0030-application-design.html">Next &middot; Application design &rarr;</a>
+  </nav>
+
+  <footer class="course-foot">CCDV-F &middot; Lesson 0029 &middot; Reference:
+    <a href="../reference/claude-code-config.html">Claude Code config</a></footer>
+</main>
+<script src="../assets/quiz.js"></script>
+</body>
+</html>

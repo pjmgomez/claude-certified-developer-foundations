@@ -1,0 +1,125 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Phase 5 · Subagents &amp; hooks</title>
+  <link rel="stylesheet" href="../assets/styles.css">
+</head>
+<body>
+<main>
+  <header class="lesson-head">
+    <div class="lesson-kicker">Phase 5 · Agents &amp; Workflows</div>
+    <h1>Subagents &amp; hooks</h1>
+    <p class="lesson-sub">Delegate to isolated helpers; wire deterministic guardrails into the loop.</p>
+    <div class="badges"><span class="badge">Domain 1.2 · Agent Construction</span></div>
+  </header>
+
+  <p>Two ways to shape an agent&rsquo;s behaviour beyond its prompt: <strong>subagents</strong> hand a sub-task
+  to a helper with its own context window, and <strong>hooks</strong> run your code at lifecycle events to
+  observe, block, or transform &mdash; deterministically, not by asking nicely.</p>
+
+  <p><strong>Your win:</strong> define a specialist subagent and register a <code>PreToolUse</code> hook on the
+  agent loop.</p>
+
+  <div class="callout callout--source">
+    <span class="callout__label">Read alongside</span>
+    The <a href="../reference/agent-sdk.html">Agent SDK sheet</a>. Hooks get the full treatment in Phase 7
+    (security); here we just wire them into the SDK.
+  </div>
+
+  <h2>Do it</h2>
+  <ol class="steps">
+    <li>Define a specialist subagent &mdash; it runs in its <em>own</em> context and returns just its result:
+      <pre><code>from claude_agent_sdk import ClaudeAgentOptions, AgentDefinition, query
+
+options = ClaudeAgentOptions(agents={
+    "reviewer": AgentDefinition(
+        description="Reviews code for bugs and security issues",
+        prompt="You are a meticulous code reviewer.",
+        tools=["Read", "Grep"],
+        model="sonnet",
+    ),
+})</code></pre>
+      The parent delegates to <code>reviewer</code>; the reviewer&rsquo;s intermediate steps never clutter the
+      parent&rsquo;s window (the context-isolation idea from Phase 4).</li>
+    <li>Register a hook that fires before any <code>Write</code> tool call:
+      <pre><code>from claude_agent_sdk import ClaudeSDKClient, ClaudeAgentOptions, HookMatcher
+
+async def guard_writes(input_data, tool_use_id, context):
+    # inspect input_data (the pending tool call); return a decision to allow or deny.
+    return {}   # {} = allow; return a deny decision to block (full schema in Phase 7)
+
+options = ClaudeAgentOptions(
+    allowed_tools=["Write"],
+    hooks={"PreToolUse": [HookMatcher(matcher="Write", hooks=[guard_writes])]},
+)</code></pre></li>
+    <li>Reflect: subagents shape <em>what work happens where</em>; hooks shape <em>what&rsquo;s allowed to
+      happen</em>. Prompts are &ldquo;should&rdquo;; hooks are &ldquo;must.&rdquo;</li>
+  </ol>
+
+  <div class="callout callout--warn">
+    <span class="callout__label">Deployment &amp; auth</span>
+    Run the SDK <strong>self-hosted</strong> (your own API key) or <strong>Anthropic-managed</strong>; it can
+    route to the Anthropic API, Bedrock, or Vertex. Use API-key auth &mdash; third-party products can&rsquo;t
+    offer claude.ai login for SDK-built apps.
+  </div>
+
+  <h2>Check yourself</h2>
+  <div class="quiz">
+    <script type="application/json">
+    [
+      {
+        "stem": "The main reason to use a subagent is...",
+        "options": [
+          "Context isolation: its own window, only results return",
+          "It is always cheaper than a single top-level call",
+          "It removes the need to define any tools at all",
+          "It guarantees deterministic, identical outputs"
+        ],
+        "answer": 0,
+        "explain": "Subagents get their own context window and return only their distilled result \u2014 the parent never carries the messy intermediate steps."
+      },
+      {
+        "stem": "Hooks differ from prompt instructions because they are...",
+        "options": [
+          "Deterministic code that runs at lifecycle events",
+          "Suggestions the model may follow or ignore",
+          "Only available inside the query() function",
+          "A way to change the model mid-conversation"
+        ],
+        "answer": 0,
+        "explain": "Hooks are the deterministic 'must-do' layer \u2014 shell/callback logic that runs at events to observe, block, or transform. Prompts are the 'should-do' layer."
+      },
+      {
+        "stem": "A PreToolUse hook is registered in the SDK via...",
+        "options": [
+          "hooks={'PreToolUse': [HookMatcher(matcher=..., hooks=[cb])]}",
+          "allowed_tools=['PreToolUse'] on ClaudeAgentOptions",
+          "A decorator on the query() call itself",
+          "The system_prompt, as a natural-language rule"
+        ],
+        "answer": 0,
+        "explain": "Hooks are wired through ClaudeAgentOptions.hooks, keyed by event, each event holding a list of HookMatcher entries with callbacks."
+      }
+    ]
+    </script>
+  </div>
+
+  <div class="callout callout--teacher">
+    <span class="callout__label">Ask your teacher</span>
+    Want a real PreToolUse hook that blocks a destructive command? We build exactly that in Phase 7 &mdash; ask
+    to preview it now if you like.
+  </div>
+
+  <nav class="lesson-nav">
+    <a href="0023-agent-sdk.html">&larr; The Claude Agent SDK</a>
+    <a href="0025-agent-frameworks.html">Next &middot; Frameworks &rarr;</a>
+  </nav>
+
+  <footer class="course-foot">CCDV-F &middot; Lesson 0024 &middot; Reference:
+    <a href="../reference/agent-sdk.html">Claude Agent SDK</a></footer>
+</main>
+<script src="../assets/quiz.js"></script>
+</body>
+</html>

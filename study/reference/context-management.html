@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Reference · Context management</title>
+  <link rel="stylesheet" href="../assets/styles.css">
+</head>
+<body>
+<main class="sheet">
+  <header class="lesson-head">
+    <div class="lesson-kicker">Reference sheet</div>
+    <h1>Context management</h1>
+    <p class="lesson-sub">Keep the window a small set of high-signal tokens as a conversation grows.</p>
+    <div class="badges"><span class="badge">Domain 6.1 · Context Engineering</span></div>
+  </header>
+
+  <p>Context is a finite resource; the goal is the smallest set of high-signal tokens. Four levers, cheapest
+  first:</p>
+
+  <table>
+    <thead><tr><th>Lever</th><th>What it does</th></tr></thead>
+    <tbody>
+      <tr><td><strong>Prune tool outputs</strong></td><td>Paginate / filter / range-select so a tool returns only what&rsquo;s needed. (Claude Code caps tool responses at ~25,000 tokens by default.)</td></tr>
+      <tr><td><strong>Context editing</strong></td><td>Server clears old tool results / thinking once a threshold trips.</td></tr>
+      <tr><td><strong>Compaction</strong></td><td>Server summarises older context into a compaction block.</td></tr>
+      <tr><td><strong>Memory + subagents</strong></td><td>Persist facts to files; isolate work in subagents with their own windows.</td></tr>
+    </tbody>
+  </table>
+
+  <p>Context editing and compaction live under one config, behind the beta header
+  <code>context-management-2025-06-27</code>:</p>
+  <pre><code>context_management = {"edits": [
+    {"type": "clear_tool_uses_20250919",           # clear old tool results
+     "trigger":  {"type": "input_tokens", "value": 30000},
+     "keep":     {"type": "tool_uses",    "value": 3},
+     "clear_at_least": {"type": "input_tokens", "value": 5000},
+     "exclude_tools": ["memory"]},                 # never clear memory writes
+]}
+# server-side summarization instead of clearing:
+#   {"type": "compact_20260112"}   # trigger defaults to 150000 input tokens
+</code></pre>
+  <p>Applied edits come back on <code>message.context_management.applied_edits</code>
+  (<code>cleared_input_tokens</code>, <code>cleared_tool_uses</code>).</p>
+
+  <h2>Memory tool</h2>
+  <p>A file-based CRUD memory (tool type <code>memory_20250818</code>) that persists across conversations under
+  the <code>/memories</code> directory &mdash; commands <code>view</code>, <code>create</code>,
+  <code>str_replace</code>, <code>insert</code>, <code>delete</code>, <code>rename</code>. Add <code>memory</code>
+  to <code>exclude_tools</code> so context editing never wipes what it writes.</p>
+
+  <div class="callout callout--warn">
+    <span class="callout__label">Why bother (reported)</span>
+    Anthropic reports combining the memory tool with context editing improved performance <strong>39%</strong>
+    over baseline (context editing alone: <strong>29%</strong>), and in a 100-turn web-search eval, context
+    editing cut token use <strong>84%</strong>. Treat exact figures as indicative.
+  </div>
+
+  <div class="callout callout--source">
+    <span class="callout__label">Primary source</span>
+    <a href="https://www.anthropic.com/engineering/effective-context-engineering-for-ai-agents">Effective context engineering</a> &middot;
+    <a href="https://platform.claude.com/docs/en/build-with-claude/context-editing">Context editing</a>.
+    Shapes verified against <code>BetaContextManagementConfigParam</code> / <code>clear_tool_uses_20250919</code> /
+    <code>compact_20260112</code> / <code>memory_20250818</code> in the SDK.
+  </div>
+  <footer class="course-foot">CCDV-F reference &middot; used by
+    <a href="../lessons/0019-context-engineering.html">Lesson 0019</a> and
+    <a href="../lessons/0020-context-editing-memory.html">Lesson 0020</a>.</footer>
+</main>
+</body>
+</html>

@@ -1,0 +1,118 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Phase 3 · The Batch API</title>
+  <link rel="stylesheet" href="../assets/styles.css">
+</head>
+<body>
+<main>
+  <header class="lesson-head">
+    <div class="lesson-kicker">Phase 3 · Models &amp; Optimization</div>
+    <h1>The Batch API</h1>
+    <p class="lesson-sub">Half price for work that can wait &mdash; the classic realtime-vs-batch call.</p>
+    <div class="badges">
+      <span class="badge">Domain 5.4 · Cost &amp; Token Management</span>
+      <span class="badge">Domain 2.3 · Batch vs realtime</span>
+    </div>
+  </header>
+
+  <p>When a workload is large and <em>not</em> time-sensitive &mdash; overnight classification, offline evals,
+  dataset labelling &mdash; the Message Batches API runs it asynchronously for <strong>50% off</strong>. Knowing
+  when to reach for batch instead of firing synchronous calls is a core cost decision (and the guide&rsquo;s
+  sample Q1).</p>
+
+  <p><strong>Your win:</strong> submit a small batch of classification requests and read back the batch handle.</p>
+
+  <div class="callout callout--source">
+    <span class="callout__label">Read alongside</span>
+    The <a href="../reference/caching-batch.html">caching &amp; batch sheet</a>: 50% off; up to 100k requests /
+    256 MB; most finish within an hour, expire at 24h; results kept 29 days; one <code>custom_id</code> per request.
+  </div>
+
+  <h2>Do it</h2>
+  <ol class="steps">
+    <li>Build one entry per item, each with a <code>custom_id</code> and a full Messages <code>params</code> body:
+      <pre><code>docs = ["refund please", "where is my order", "love this product"]
+
+batch = client.messages.batches.create(requests=[
+    {"custom_id": f"doc-{i}",
+     "params": {
+         "model": "claude-haiku-4-5", "max_tokens": 50,
+         "messages": [{"role": "user",
+                       "content": f"Classify intent in one word: {d}"}],
+     }}
+    for i, d in enumerate(docs)
+])
+print(batch.id, batch.processing_status)</code></pre></li>
+    <li>Poll the batch by id until it&rsquo;s ended, then retrieve results and match each by its
+      <code>custom_id</code>. (Order isn&rsquo;t guaranteed &mdash; the id is how you pair them.)</li>
+    <li>Notice what you gave up: no streaming, no interactive tool loop. Batch is fire-and-collect.</li>
+  </ol>
+
+  <div class="callout callout--warn">
+    <span class="callout__label">Realtime vs batch</span>
+    User-facing? Use realtime (sync / streaming). Tolerant of up to 24 hours? Use batch and pay half. Lowering
+    <code>max_tokens</code> or shrinking the model does <em>not</em> address this tradeoff &mdash; the axis is
+    latency tolerance, not output size.
+  </div>
+
+  <h2>Check yourself</h2>
+  <div class="quiz">
+    <script type="application/json">
+    [
+      {
+        "stem": "The Message Batches API discount is...",
+        "options": [
+          "50% off both input and output tokens",
+          "10% off, the same as a prompt-cache read",
+          "90% off, but only on the input tokens",
+          "Free, provided the batch finishes overnight"
+        ],
+        "answer": 0,
+        "explain": "Batch is a flat 50% off input and output, in exchange for asynchronous, latency-tolerant processing."
+      },
+      {
+        "stem": "Batch is the right choice when the workload...",
+        "options": [
+          "Is large and tolerant of up to 24 hours of latency",
+          "Must return to a waiting user as fast as possible",
+          "Needs streaming so the UI can render incrementally",
+          "Requires an interactive multi-turn tool-use loop"
+        ],
+        "answer": 0,
+        "explain": "Batch fits offline, high-volume, non-urgent work. Anything user-facing or streaming or interactive should stay on the realtime path."
+      },
+      {
+        "stem": "Each request in a batch must carry a...",
+        "options": [
+          "custom_id, used to match its result afterward",
+          "priority flag, to order execution within the batch",
+          "retry_after value, to schedule its own backoff",
+          "stream: true, so results arrive as they finish"
+        ],
+        "answer": 0,
+        "explain": "Results aren't ordered, so each request needs a custom_id you use to pair the response back to its input."
+      }
+    ]
+    </script>
+  </div>
+
+  <div class="callout callout--teacher">
+    <span class="callout__label">Ask your teacher</span>
+    Want to stack the discounts &mdash; caching a shared prefix <em>inside</em> a batch &mdash; or design the
+    polling + result-matching loop? Ask and we&rsquo;ll build it.
+  </div>
+
+  <nav class="lesson-nav">
+    <a href="0014-prompt-caching.html">&larr; Prompt caching</a>
+    <span>Phase 3 complete &middot; Phase 4 (Prompt &amp; context engineering) up next</span>
+  </nav>
+
+  <footer class="course-foot">CCDV-F &middot; Lesson 0015 &middot; Reference:
+    <a href="../reference/caching-batch.html">Caching &amp; batch</a></footer>
+</main>
+<script src="../assets/quiz.js"></script>
+</body>
+</html>

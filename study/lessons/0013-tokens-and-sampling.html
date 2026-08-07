@@ -1,0 +1,109 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Phase 3 · Tokens, sampling &amp; non-determinism</title>
+  <link rel="stylesheet" href="../assets/styles.css">
+</head>
+<body>
+<main>
+  <header class="lesson-head">
+    <div class="lesson-kicker">Phase 3 · Models &amp; Optimization</div>
+    <h1>Tokens, sampling &amp; non-determinism</h1>
+    <p class="lesson-sub">The raw materials: what you pay for, what &ldquo;the context window&rdquo; really is, and why the same prompt wanders.</p>
+    <div class="badges"><span class="badge">Domain 5.1 · LLM Fundamentals</span></div>
+  </header>
+
+  <p>Under every call are a few fundamentals worth making concrete: tokens (the billed unit), the context
+  window (the model&rsquo;s working memory), sampling controls (how random the next token is), and the fact that
+  Claude is <em>never</em> perfectly deterministic.</p>
+
+  <p><strong>Your win:</strong> count the tokens in a prompt before sending it, and feel temperature change the
+  output.</p>
+
+  <h2>The fundamentals</h2>
+  <ul>
+    <li><strong>Token</strong> &mdash; a chunk of text (roughly a word-piece). You pay per input and output token;
+      output runs ~5&times; the input rate.</li>
+    <li><strong>Context window</strong> &mdash; everything the model can reference at once, <em>including its own
+      output</em>. Its working memory (200K on Haiku 4.5, up to 1M on the 5-series).</li>
+    <li><strong>Sampling</strong> &mdash; <code>temperature</code> (0&ndash;1; near 0 = focused/analytical, near 1 =
+      creative), plus <code>top_p</code> (nucleus) and <code>top_k</code>. Tune temperature <em>or</em> top_p,
+      not both at once.</li>
+    <li><strong>Non-determinism</strong> &mdash; even at <code>temperature=0</code> the output is not guaranteed
+      identical across calls. Low temperature is reproducible <em>enough</em> to often replay a bad call, not a
+      guarantee.</li>
+    <li><strong>Prompting shots</strong> &mdash; <em>zero-shot</em> (instruction only), <em>single-shot</em> (one
+      example), <em>multi-shot / few-shot</em> (several).</li>
+  </ul>
+
+  <h2>Do it</h2>
+  <ol class="steps">
+    <li>Count tokens before you spend them:
+      <pre><code>n = client.messages.count_tokens(
+    model="claude-sonnet-5",
+    messages=[{"role": "user", "content": "How many tokens is this sentence?"}],
+)
+print(n.input_tokens)</code></pre></li>
+    <li>Run the same creative prompt at <code>temperature=0</code> then <code>temperature=1</code>, a few times
+      each. Note how 0 barely moves and 1 wanders &mdash; and that even 0 isn&rsquo;t byte-identical.</li>
+  </ol>
+
+  <h2>Check yourself</h2>
+  <div class="quiz">
+    <script type="application/json">
+    [
+      {
+        "stem": "The context window contains...",
+        "options": [
+          "All tokens the model can reference, including its output",
+          "Only the user's input tokens for the current request",
+          "Just the system prompt and the most recent user turn",
+          "Everything except the tokens the model itself generates"
+        ],
+        "answer": 0,
+        "explain": "The window is the model's working memory \u2014 system, history, current input, and its own generated tokens all count against it."
+      },
+      {
+        "stem": "You set temperature to 0.0. The output is...",
+        "options": [
+          "Focused, but still not guaranteed identical each call",
+          "Perfectly deterministic and identical on every call",
+          "Maximally creative, since 0 unlocks free exploration",
+          "Rejected, because temperature must be above zero"
+        ],
+        "answer": 0,
+        "explain": "Low temperature is focused and reproducible enough to often replay a bad call, but the docs are explicit: even at 0.0 it is not fully deterministic."
+      },
+      {
+        "stem": "Giving the model several worked examples in the prompt is...",
+        "options": [
+          "Multi-shot (few-shot) prompting with example pairs",
+          "Zero-shot prompting, since the task is described",
+          "Single-shot prompting, regardless of example count",
+          "Fine-tuning the model on your own example data"
+        ],
+        "answer": 0,
+        "explain": "Zero / single / multi-shot = zero, one, or several in-context examples. Multi-shot is the same as few-shot. None of it changes the model's weights."
+      }
+    ]
+    </script>
+  </div>
+
+  <div class="callout callout--teacher">
+    <span class="callout__label">Ask your teacher</span>
+    Curious how token counts differ between prompts, or when top_p beats temperature? Bring examples and
+    we&rsquo;ll measure.
+  </div>
+
+  <nav class="lesson-nav">
+    <a href="0012-thinking-and-effort.html">&larr; Thinking &amp; effort</a>
+    <a href="0014-prompt-caching.html">Next &middot; Prompt caching &rarr;</a>
+  </nav>
+
+  <footer class="course-foot">CCDV-F &middot; Lesson 0013</footer>
+</main>
+<script src="../assets/quiz.js"></script>
+</body>
+</html>

@@ -1,0 +1,115 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Phase 2 · Choosing your mechanism</title>
+  <link rel="stylesheet" href="../assets/styles.css">
+</head>
+<body>
+<main>
+  <header class="lesson-head">
+    <div class="lesson-kicker">Phase 2 · Tools &amp; MCP</div>
+    <h1>Choosing your mechanism</h1>
+    <p class="lesson-sub">Built-in tool, custom tool, Skill, or MCP? Pick by reuse, ownership, and context cost.</p>
+    <div class="badges">
+      <span class="badge">Domain 8.3 · Agentic Customization</span>
+      <span class="badge badge--weight">4.1% of the exam</span>
+    </div>
+  </header>
+
+  <p>You now have four ways to extend Claude. Picking the wrong one is a common design mistake &mdash;
+  hard-coding logic that should be an MCP server, or reaching for MCP when a Skill would do. Choose by three
+  questions: <strong>who reuses it, who maintains it, and what it costs your context</strong>.</p>
+
+  <table>
+    <thead><tr><th>Mechanism</th><th>Best for</th><th>Watch out</th></tr></thead>
+    <tbody>
+      <tr>
+        <td><strong>Built-in tools</strong><br><small>web_search, code_execution&hellip;</small></td>
+        <td>Common actions you don&rsquo;t want to build or maintain. Fastest path.</td>
+        <td>They don&rsquo;t reach <em>your</em> internal systems.</td>
+      </tr>
+      <tr>
+        <td><strong>Custom tools</strong></td>
+        <td>Your own API or logic, called from one app, where you control execution.</td>
+        <td>Not automatically reusable across other apps.</td>
+      </tr>
+      <tr>
+        <td><strong>Agent Skills</strong></td>
+        <td>Procedural know-how / workflows. Progressive disclosure &mdash; only name+description sit in
+          context until triggered.</td>
+        <td>Knowledge and process, not a live connection to a system.</td>
+      </tr>
+      <tr>
+        <td><strong>MCP servers</strong></td>
+        <td>A capability reused across <em>many</em> clients/agents and maintained independently.</td>
+        <td>Tool descriptions consume context constantly (no progressive disclosure) &mdash; size the set.</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="callout callout--warn">
+    <span class="callout__label">The exam&rsquo;s favourite distinction</span>
+    &ldquo;Reusable across several apps, maintained independently&rdquo; &rarr; <strong>MCP server</strong>.
+    Hard-coding into each prompt isn&rsquo;t reusable; pasting data gives no live access; built-in tools
+    don&rsquo;t reach arbitrary internal APIs. (That&rsquo;s the reasoning behind the guide&rsquo;s sample Q3.)
+  </div>
+
+  <h2>Check yourself</h2>
+  <div class="quiz">
+    <script type="application/json">
+    [
+      {
+        "stem": "One capability must be reused across several apps and owned by its own team. Use...",
+        "options": [
+          "An MCP server the apps each connect to independently",
+          "A custom tool copied into each application's codebase",
+          "A system-prompt block pasted into every application",
+          "A built-in tool, since those reach any internal system"
+        ],
+        "answer": 0,
+        "explain": "MCP is the reusable, independently-maintained connection shared across clients. Copying a custom tool duplicates maintenance; built-ins can't reach arbitrary internal APIs."
+      },
+      {
+        "stem": "You want procedural domain know-how loaded only when relevant, at low context cost. Use...",
+        "options": [
+          "An Agent Skill, which discloses its body on demand",
+          "An MCP server whose tools always sit in the context",
+          "A larger model so it simply memorises the procedure",
+          "A custom tool that returns the instructions as text"
+        ],
+        "answer": 0,
+        "explain": "Skills use progressive disclosure: only name+description occupy context until triggered, then the body loads. Ideal for procedural expertise."
+      },
+      {
+        "stem": "A single app needs to call your internal REST API you control. Use...",
+        "options": [
+          "A custom tool defined with a name and input_schema",
+          "A built-in tool, which can reach any REST endpoint",
+          "An Agent Skill describing the endpoint in prose only",
+          "Nothing \u2014 paste live data into the prompt each call"
+        ],
+        "answer": 0,
+        "explain": "For one app calling your own API, a custom tool is the direct fit. Reach for MCP only when several clients need that same capability."
+      }
+    ]
+    </script>
+  </div>
+
+  <div class="callout callout--teacher">
+    <span class="callout__label">Ask your teacher</span>
+    Bring me a capability you actually need and we&rsquo;ll classify it together &mdash; and note when the
+    answer is &ldquo;more than one of these.&rdquo;
+  </div>
+
+  <nav class="lesson-nav">
+    <a href="0009-mcp-server.html">&larr; Build an MCP server</a>
+    <span>Phase 2 complete &middot; Phase 3 (Models &amp; optimization) up next</span>
+  </nav>
+
+  <footer class="course-foot">CCDV-F &middot; Lesson 0010</footer>
+</main>
+<script src="../assets/quiz.js"></script>
+</body>
+</html>

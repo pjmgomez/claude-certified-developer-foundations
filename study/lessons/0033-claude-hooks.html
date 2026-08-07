@@ -1,0 +1,121 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Phase 7 · Claude hooks for guardrails</title>
+  <link rel="stylesheet" href="../assets/styles.css">
+</head>
+<body>
+<main>
+  <header class="lesson-head">
+    <div class="lesson-kicker">Phase 7 · Security &amp; Safety</div>
+    <h1>Claude hooks for guardrails</h1>
+    <p class="lesson-sub">The deterministic layer &mdash; block the destructive tool call before it runs.</p>
+    <div class="badges"><span class="badge">Domain 7.3 · Claude Hooks</span></div>
+  </header>
+
+  <p>Prompts persuade; hooks <em>enforce</em>. A <code>PreToolUse</code> hook runs your code before any tool
+  executes and can veto it &mdash; the right home for &ldquo;never run <code>rm -rf</code>&rdquo; and other hard
+  stops. Crucially, a hook deny outranks even permission-bypass modes.</p>
+
+  <p><strong>Your win:</strong> write a PreToolUse hook that blocks a destructive command, and know why it holds
+  even under <code>--dangerously-skip-permissions</code>.</p>
+
+  <div class="callout callout--source">
+    <span class="callout__label">Read alongside</span>
+    The <a href="../reference/hooks.html">hooks sheet</a>: events, the exit-code shell form, the SDK callback
+    form, and the precedence rule.
+  </div>
+
+  <h2>Do it</h2>
+  <ol class="steps">
+    <li>Register a PreToolUse guard on the agent loop (SDK form):
+      <pre><code>from claude_agent_sdk import ClaudeAgentOptions, ClaudeSDKClient, HookMatcher
+
+async def block_destructive(input_data, tool_use_id, context):
+    if input_data.get("tool_name") == "Bash":
+        cmd = input_data.get("tool_input", {}).get("command", "")
+        if "rm -rf" in cmd:
+            return {"hookSpecificOutput": {
+                "hookEventName": "PreToolUse",
+                "permissionDecision": "deny",
+                "permissionDecisionReason": "Blocked: destructive rm -rf."}}
+    return {}                                  # {} = allow
+
+options = ClaudeAgentOptions(
+    allowed_tools=["Bash"],
+    hooks={"PreToolUse": [HookMatcher(matcher="Bash", hooks=[block_destructive])]})</code></pre></li>
+    <li>Ask the agent to <code>rm -rf</code> something and confirm the call is denied before it runs. Try a safe
+      <code>echo</code> and confirm it passes.</li>
+    <li>Note the <strong>shell form</strong> (settings.json): the same guard as a command that exits
+      <code>2</code> to deny (<code>0</code> allows, <code>1</code> warns) &mdash; matcher regex like
+      <code>Bash</code> or <code>Write|Edit</code>.</li>
+  </ol>
+
+  <div class="callout callout--warn">
+    <span class="callout__label">Deny outranks bypass</span>
+    A PreToolUse <strong>deny is evaluated before permission-mode checks</strong>, so it blocks the tool even
+    under <code>bypassPermissions</code> / <code>--dangerously-skip-permissions</code>. That&rsquo;s what makes
+    it the right place for hard safety stops. (<code>PermissionRequest</code> hooks, by contrast, don&rsquo;t
+    fire in headless mode.)
+  </div>
+
+  <h2>Check yourself</h2>
+  <div class="quiz">
+    <script type="application/json">
+    [
+      {
+        "stem": "Which hook event is the right place to block a destructive tool call?",
+        "options": [
+          "PreToolUse, which runs before the tool and can deny it",
+          "PostToolUse, which runs after and can undo the tool",
+          "UserPromptSubmit, which runs before the model replies",
+          "Stop, which runs once the whole turn has finished"
+        ],
+        "answer": 0,
+        "explain": "PreToolUse runs before the tool executes and can deny it. PostToolUse runs after success and cannot undo what already happened."
+      },
+      {
+        "stem": "In the shell (settings.json) form, a PreToolUse hook denies a call by exiting with code...",
+        "options": [
+          "2 (0 allows, 1 warns)",
+          "0 (2 allows, 1 denies)",
+          "1 (0 denies, 2 warns)",
+          "any nonzero code equally"
+        ],
+        "answer": 0,
+        "explain": "Exit 2 denies, 0 allows, 1 warns. In the SDK form, the equivalent is permissionDecision: 'deny'."
+      },
+      {
+        "stem": "A PreToolUse deny is powerful because it...",
+        "options": [
+          "Is evaluated before permission checks, blocking even under bypass",
+          "Only applies when permission mode is set to default",
+          "Can be overridden by --dangerously-skip-permissions",
+          "Runs after the tool, so it can roll back the effect"
+        ],
+        "answer": 0,
+        "explain": "The deny is checked before permission-mode logic, so it blocks the tool even under bypassPermissions \u2014 the hard-stop guarantee prompts can't give."
+      }
+    ]
+    </script>
+  </div>
+
+  <div class="callout callout--teacher">
+    <span class="callout__label">Ask your teacher</span>
+    Want a hook that redacts secrets from tool output (PostToolUse) or injects a safety note on every prompt
+    (UserPromptSubmit)? Ask and we&rsquo;ll write it.
+  </div>
+
+  <nav class="lesson-nav">
+    <a href="0032-guardrails.html">&larr; Guardrails</a>
+    <a href="0034-data-leakage-pii.html">Next &middot; Data leakage &amp; PII &rarr;</a>
+  </nav>
+
+  <footer class="course-foot">CCDV-F &middot; Lesson 0033 &middot; Reference:
+    <a href="../reference/hooks.html">Claude hooks</a></footer>
+</main>
+<script src="../assets/quiz.js"></script>
+</body>
+</html>

@@ -1,0 +1,106 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Phase 1 · Images and documents in</title>
+  <link rel="stylesheet" href="../assets/styles.css">
+</head>
+<body>
+<main>
+  <header class="lesson-head">
+    <div class="lesson-kicker">Phase 1 · Core API Mechanics</div>
+    <h1>Images and documents in, text out</h1>
+    <p class="lesson-sub">Same Messages envelope &mdash; just richer content blocks.</p>
+    <div class="badges">
+      <span class="badge">Domain 2.3 · Vision &amp; multi-format input</span>
+    </div>
+  </header>
+
+  <p>A user turn&rsquo;s <code>content</code> can be a <strong>list of blocks</strong> that mixes
+  <code>text</code> with <code>image</code> or <code>document</code> blocks. Nothing else about the call
+  changes &mdash; you still read <code>message.content[0].text</code> on the way out.</p>
+
+  <p><strong>Your win:</strong> ask Claude a question about a local image, then swap in an image URL and a PDF.</p>
+
+  <h2>Do it</h2>
+  <ol class="steps">
+    <li>Send a local image as a base64 block beside a text block:
+      <pre><code>import base64, anthropic
+
+client = anthropic.Anthropic()
+
+with open("chart.png", "rb") as f:
+    b64 = base64.standard_b64encode(f.read()).decode("utf-8")
+
+msg = client.messages.create(
+    model="claude-sonnet-5", max_tokens=300,
+    messages=[{
+        "role": "user",
+        "content": [
+            {"type": "image",
+             "source": {"type": "base64", "media_type": "image/png", "data": b64}},
+            {"type": "text", "text": "What does this chart show? Be specific."},
+        ],
+    }],
+)
+print(msg.content[0].text)</code></pre></li>
+    <li>Swap the source for a hosted image &mdash; no encoding needed:
+      <pre><code>{"type": "image", "source": {"type": "url", "url": "https://example.com/cat.png"}}</code></pre></li>
+    <li>Ask about a PDF with a <code>document</code> block:
+      <pre><code>{"type": "document",
+ "source": {"type": "base64", "media_type": "application/pdf", "data": pdf_b64}}</code></pre></li>
+  </ol>
+
+  <div class="callout callout--warn">
+    <span class="callout__label">Verify the limits</span>
+    Common image types are <code>image/jpeg</code>, <code>image/png</code>, <code>image/gif</code>,
+    <code>image/webp</code>. Exact supported formats, per-image size caps, and page limits for PDFs
+    <em>change</em> &mdash; confirm on the vision / PDF docs before you rely on them in production.
+  </div>
+
+  <h2>Check yourself</h2>
+  <div class="quiz">
+    <script type="application/json">
+    [
+      {
+        "stem": "To send an image you add a content block of which type?",
+        "options": [
+          "image, whose source is a base64 blob or a url",
+          "vision, whose source is an attached local path",
+          "media, whose source is a public bucket handle",
+          "photo, whose source is raw inline pixel bytes"
+        ],
+        "answer": 0,
+        "explain": "An image block carries a source that is either {type: base64, media_type, data} or {type: url, url}."
+      },
+      {
+        "stem": "What is the content of a multimodal user message?",
+        "options": [
+          "A list mixing text blocks and image blocks",
+          "A single string holding an inline data uri",
+          "A dict of image urls keyed by their index",
+          "A separate images field beside the messages"
+        ],
+        "answer": 0,
+        "explain": "content becomes a list of blocks. You interleave text with image or document blocks in the same user turn."
+      }
+    ]
+    </script>
+  </div>
+
+  <div class="callout callout--teacher">
+    <span class="callout__label">Ask your teacher</span>
+    No image handy? Ask me for a tiny base64 test image, or how to pass several pages of a PDF at once.
+  </div>
+
+  <nav class="lesson-nav">
+    <a href="0003-streaming-sse.html">&larr; Streaming</a>
+    <a href="0005-errors-and-recovery.html">Next &middot; Errors &amp; recovery &rarr;</a>
+  </nav>
+
+  <footer class="course-foot">CCDV-F &middot; Lesson 0004</footer>
+</main>
+<script src="../assets/quiz.js"></script>
+</body>
+</html>

@@ -1,0 +1,112 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Phase 2 · Directing tools</title>
+  <link rel="stylesheet" href="../assets/styles.css">
+</head>
+<body>
+<main>
+  <header class="lesson-head">
+    <div class="lesson-kicker">Phase 2 · Tools &amp; MCP</div>
+    <h1>Directing tools</h1>
+    <p class="lesson-sub">Force a tool, allow many at once, and know where each one runs.</p>
+    <div class="badges"><span class="badge">Domain 8.1 · Tool Implementation</span></div>
+  </header>
+
+  <p>The loop from the last lesson leaves the decision to Claude. Often you want more control: guarantee a
+  tool runs, pin a specific one, or cap it at a single call. That is <code>tool_choice</code>. And you should
+  know <em>where</em> a tool executes &mdash; in your process, or on Anthropic&rsquo;s.</p>
+
+  <p><strong>Your win:</strong> force a specific tool for structured output, trigger a parallel call, and
+  name which of your tools are client-side vs server-side.</p>
+
+  <div class="callout callout--source">
+    <span class="callout__label">Read alongside</span>
+    The <a href="../reference/tool-choice.html">tool_choice &amp; tool types sheet</a>: <code>auto</code>
+    (default), <code>any</code> (must use one, model picks), <code>tool</code> (force a named one),
+    <code>none</code>.
+  </div>
+
+  <h2>Do it</h2>
+  <ol class="steps">
+    <li>Force one specific tool &mdash; the trick for reliable structured output:
+      <pre><code>resp = client.messages.create(
+    model=MODEL, max_tokens=400, tools=tools,
+    tool_choice={"type": "tool", "name": "get_weather"},
+    messages=[{"role": "user", "content": "Weather in Paris?"}],
+)
+# resp.content[0] is a tool_use block for get_weather, guaranteed.</code></pre></li>
+    <li>Require <em>some</em> tool but let Claude choose which: <code>tool_choice={"type": "any"}</code>.</li>
+    <li>Trigger parallel calls: give two cities in one question and watch a single assistant turn contain
+      <strong>two</strong> <code>tool_use</code> blocks. Return both <code>tool_result</code>s in one user turn.
+      To forbid that, add <code>"disable_parallel_tool_use": true</code>.</li>
+    <li>Label your tools: your <code>get_weather</code> is a <strong>client tool</strong> (you run it).
+      <code>web_search</code> and <code>code_execution</code> are <strong>server tools</strong> (Anthropic runs them).</li>
+  </ol>
+
+  <div class="callout callout--warn">
+    <span class="callout__label">Cache-aware</span>
+    Flipping <code>tool_choice</code> or editing the <code>tools</code> array between calls invalidates cached
+    blocks (Phase 3 covers caching). Keep them stable when you want cache hits.
+  </div>
+
+  <h2>Check yourself</h2>
+  <div class="quiz">
+    <script type="application/json">
+    [
+      {
+        "stem": "Which tool_choice makes Claude use a tool but lets it pick which one?",
+        "options": [
+          "any: it must call a tool, model chooses which",
+          "auto: it may or may not call a tool at all",
+          "tool: it is pinned to one specific named tool",
+          "none: it is forbidden from calling any tool"
+        ],
+        "answer": 0,
+        "explain": "any forces a tool call while leaving the choice to Claude. tool pins a specific one; auto is free to answer without tools."
+      },
+      {
+        "stem": "web_search and code_execution are examples of...",
+        "options": [
+          "server tools that run on Anthropic infrastructure",
+          "client tools that run inside your own process",
+          "custom tools you must define with input_schema",
+          "MCP resources exposed over the stdio transport"
+        ],
+        "answer": 0,
+        "explain": "These are server tools \u2014 Anthropic executes them and returns results inline. Your own functions are client tools you run."
+      },
+      {
+        "stem": "How do you force the model to output at most one tool call?",
+        "options": [
+          "Set disable_parallel_tool_use to true on tool_choice",
+          "Set max_tokens to a very small number on the call",
+          "Send only one tool in the tools array each time",
+          "Use tool_choice none so parallelism is turned off"
+        ],
+        "answer": 0,
+        "explain": "disable_parallel_tool_use = true caps it at exactly one tool call. Sending one tool still allows repeated calls; none forbids tools entirely."
+      }
+    ]
+    </script>
+  </div>
+
+  <div class="callout callout--teacher">
+    <span class="callout__label">Ask your teacher</span>
+    Curious why forcing a single tool is the classic structured-output trick &mdash; and how that differs from
+    the newer strict / JSON outputs? Ask; we&rsquo;ll connect it in Phase&nbsp;4.
+  </div>
+
+  <nav class="lesson-nav">
+    <a href="0006-tool-use-loop.html">&larr; The tool-use loop</a>
+    <a href="0008-writing-good-tools.html">Next &middot; Writing good tools &rarr;</a>
+  </nav>
+
+  <footer class="course-foot">CCDV-F &middot; Lesson 0007 &middot; Reference:
+    <a href="../reference/tool-choice.html">tool_choice &amp; tool types</a></footer>
+</main>
+<script src="../assets/quiz.js"></script>
+</body>
+</html>

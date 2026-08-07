@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Reference · Claude Agent SDK</title>
+  <link rel="stylesheet" href="../assets/styles.css">
+</head>
+<body>
+<main class="sheet">
+  <header class="lesson-head">
+    <div class="lesson-kicker">Reference sheet</div>
+    <h1>Claude Agent SDK</h1>
+    <p class="lesson-sub">Claude Code as a library: the agent loop, tools, and context management, in your code.</p>
+    <div class="badges"><span class="badge">Domain 1.2 · Agent Construction</span></div>
+  </header>
+
+  <p><code>pip install claude-agent-sdk</code> (Python 3.10+; also TypeScript). Formerly the <em>Claude Code
+  SDK</em> &mdash; renamed ~Sept 2025, and <code>ClaudeCodeOptions</code> &rarr;
+  <strong><code>ClaudeAgentOptions</code></strong> (a breaking change to remember).</p>
+
+  <table>
+    <caption>Two entry points</caption>
+    <thead><tr><th><code>query()</code></th><th><code>ClaudeSDKClient</code></th></tr></thead>
+    <tbody>
+      <tr><td>Async function &rarr; <code>AsyncIterator</code> of messages. One-shot / stateless.</td><td>Interactive, multi-turn, bidirectional. <strong>Enables custom tools and hooks.</strong></td></tr>
+    </tbody>
+  </table>
+
+  <pre><code>from claude_agent_sdk import query, ClaudeAgentOptions, AssistantMessage, TextBlock
+
+options = ClaudeAgentOptions(system_prompt="You are concise.", max_turns=1)
+async for message in query(prompt="Hello Claude", options=options):
+    if isinstance(message, AssistantMessage):
+        for block in message.content:
+            if isinstance(block, TextBlock):
+                print(block.text)</code></pre>
+
+  <p><strong><code>ClaudeAgentOptions</code></strong> (dataclass) carries: <code>system_prompt</code>,
+  <code>max_turns</code>, <code>allowed_tools</code>, <code>mcp_servers</code>, <code>hooks</code>,
+  <code>agents</code>, <code>permission_mode</code>, <code>model</code>, <code>cwd</code>, <code>env</code>.</p>
+
+  <h2>Custom tools (in-process MCP)</h2>
+  <pre><code>from claude_agent_sdk import tool, create_sdk_mcp_server, ClaudeAgentOptions, ClaudeSDKClient
+
+@tool("add", "Add two numbers", {"a": float, "b": float})
+async def add(args):
+    return {"content": [{"type": "text", "text": f"Sum: {args['a'] + args['b']}"}]}
+
+server = create_sdk_mcp_server(name="calc", version="1.0.0", tools=[add])
+options = ClaudeAgentOptions(mcp_servers={"calc": server},
+                            allowed_tools=["mcp__calc__add"])   # note the mcp__server__tool naming</code></pre>
+
+  <h2>Hooks &amp; subagents</h2>
+  <pre><code>from claude_agent_sdk import HookMatcher, AgentDefinition
+
+options = ClaudeAgentOptions(
+    hooks={"PreToolUse": [HookMatcher(matcher="Write", hooks=[my_callback])]},
+    agents={"reviewer": AgentDefinition(
+        description="Reviews code", prompt="You are a code reviewer.",
+        tools=["Read", "Grep"], model="sonnet")},
+)</code></pre>
+
+  <div class="callout callout--warn">
+    <span class="callout__label">Deployment</span>
+    <strong>Self-hosted</strong> (you run the SDK/CLI with your own API key) vs. <strong>Anthropic-managed</strong>.
+    Provider routing targets the Anthropic API, Amazon Bedrock, or Google Vertex. Use API-key auth &mdash;
+    third-party products can&rsquo;t offer claude.ai login. For other languages, run the CLI as a subprocess with
+    <code>-p</code> and <code>--output-format stream-json</code>.
+  </div>
+
+  <div class="callout callout--source">
+    <span class="callout__label">Primary source</span>
+    <a href="https://code.claude.com/docs/en/agent-sdk/overview">Agent SDK overview</a>. API verified against
+    <a href="https://github.com/anthropics/claude-agent-sdk-python">claude-agent-sdk-python</a>
+    (<code>query</code>, <code>ClaudeSDKClient</code>, <code>ClaudeAgentOptions</code>, <code>@tool</code>,
+    <code>create_sdk_mcp_server</code>, <code>HookMatcher</code>, <code>AgentDefinition</code>).
+  </div>
+  <footer class="course-foot">CCDV-F reference &middot; used by
+    <a href="../lessons/0023-agent-sdk.html">Lesson 0023</a> and
+    <a href="../lessons/0024-subagents-and-hooks.html">Lesson 0024</a>.</footer>
+</main>
+</body>
+</html>

@@ -1,0 +1,108 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Phase 3 · Choosing a model</title>
+  <link rel="stylesheet" href="../assets/styles.css">
+</head>
+<body>
+<main>
+  <header class="lesson-head">
+    <div class="lesson-kicker">Phase 3 · Models &amp; Optimization</div>
+    <h1>Choosing a model</h1>
+    <p class="lesson-sub">Cheapest tier that clears the bar &mdash; and why the version string matters.</p>
+    <div class="badges">
+      <span class="badge">Domain 5.3 · Model Selection</span>
+      <span class="badge badge--weight">Domain 5 = 16.8%</span>
+    </div>
+  </header>
+
+  <p>There is no &ldquo;best&rdquo; model, only the best fit for a task&rsquo;s quality bar, latency budget, and
+  cost ceiling. The discipline: start cheap, measure against a real eval, and escalate only when the numbers
+  say so.</p>
+
+  <p><strong>Your win:</strong> a defensible model choice for two different tasks, and a version string you&rsquo;d
+  actually ship.</p>
+
+  <div class="callout callout--source">
+    <span class="callout__label">Read alongside</span>
+    The <a href="../reference/models-pricing.html">models &amp; pricing sheet</a> (all figures PROVISIONAL &mdash;
+    verify live): Haiku 4.5 &rarr; Sonnet 5 &rarr; Opus 5 &rarr; Fable 5, cheapest to most capable.
+  </div>
+
+  <h2>The method</h2>
+  <ol class="steps">
+    <li><strong>Start at the cheapest plausible tier.</strong> Routing, classification, extraction? Begin with
+      Haiku 4.5.</li>
+    <li><strong>Run an eval</strong> on real inputs with clear success criteria. If it clears the bar, stop &mdash;
+      you&rsquo;re done and paying the least.</li>
+    <li><strong>Escalate one step</strong> only if it fails: Haiku &rarr; Sonnet &rarr; Opus &rarr; Fable. Re-measure.</li>
+    <li><strong>Mixed workloads:</strong> route easy cases to Haiku and hard ones to Opus/Sonnet (the routing
+      pattern) rather than paying top rates for everything.</li>
+  </ol>
+
+  <div class="callout callout--warn">
+    <span class="callout__label">Pin the version</span>
+    In production, use an explicit version, not a convenience alias. And remember the trap: since the 4.6
+    generation, a <em>dateless</em> ID like <code>claude-opus-5</code> is already a <strong>pinned snapshot</strong>,
+    not an evergreen pointer. Re-test on every model upgrade &mdash; behaviour can shift.
+  </div>
+
+  <h2>Check yourself</h2>
+  <div class="quiz">
+    <script type="application/json">
+    [
+      {
+        "stem": "What is the right default strategy for picking a model?",
+        "options": [
+          "Cheapest tier that clears an eval, then escalate",
+          "Always the largest model, to be safe on quality",
+          "Whichever model the newest blog post recommends",
+          "The fastest model, then hope the quality is fine"
+        ],
+        "answer": 0,
+        "explain": "Start cheap, validate against a real eval with clear criteria, and only escalate a tier when it fails. You pay the least that still works."
+      },
+      {
+        "stem": "Since the 4.6 generation, a dateless ID like claude-opus-5 is...",
+        "options": [
+          "A pinned snapshot, not an evergreen latest pointer",
+          "An alias that always tracks the newest Opus build",
+          "Invalid unless you also append a dated suffix now",
+          "A pointer that silently upgrades on every release"
+        ],
+        "answer": 0,
+        "explain": "This is the common misconception. Post-4.6 dateless IDs are themselves fixed snapshots. Older aliases (pre-4.6) were the evergreen pointers."
+      },
+      {
+        "stem": "A high-volume, low-latency classification job should start on...",
+        "options": [
+          "Haiku 4.5, the cheapest and fastest tier",
+          "Opus 5, for the strongest possible reasoning",
+          "Fable 5, since it is the most capable model",
+          "Whichever tier has the largest context window"
+        ],
+        "answer": 0,
+        "explain": "Classification and routing are Haiku's sweet spot. Escalate only if an eval shows it misses the quality bar."
+      }
+    ]
+    </script>
+  </div>
+
+  <div class="callout callout--teacher">
+    <span class="callout__label">Ask your teacher</span>
+    Bring me a real task and its quality bar; we&rsquo;ll design a tiny eval and pick the tier together.
+  </div>
+
+  <nav class="lesson-nav">
+    <a href="0010-choosing-your-mechanism.html">&larr; Choosing your mechanism</a>
+    <a href="0012-thinking-and-effort.html">Next &middot; Thinking &amp; effort &rarr;</a>
+  </nav>
+
+  <footer class="course-foot">CCDV-F &middot; Lesson 0011 &middot; Reference:
+    <a href="../reference/models-pricing.html">Models &amp; pricing</a></footer>
+</main>
+<script src="../assets/quiz.js"></script>
+</body>
+</html>

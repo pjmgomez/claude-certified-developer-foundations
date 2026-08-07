@@ -1,0 +1,122 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Phase 3 · Prompt caching</title>
+  <link rel="stylesheet" href="../assets/styles.css">
+</head>
+<body>
+<main>
+  <header class="lesson-head">
+    <div class="lesson-kicker">Phase 3 · Models &amp; Optimization</div>
+    <h1>Prompt caching</h1>
+    <p class="lesson-sub">Pay full price for a big prefix once, then a tenth of it on every reuse.</p>
+    <div class="badges">
+      <span class="badge">Domain 5.4 · Cost &amp; Token Management</span>
+      <span class="badge">Domain 2.3 · Caching</span>
+    </div>
+  </header>
+
+  <p>If a large chunk of your prompt is stable across calls &mdash; a long system prompt, a tool set, a
+  document &mdash; caching lets Claude reuse it instead of re-reading it at full price. A cache <em>read</em>
+  costs ~10% of the base input rate. On repetitive workloads this is the single biggest cost lever.</p>
+
+  <p><strong>Your win:</strong> cache a large system prompt, then prove the hit by watching
+  <code>cache_read_input_tokens</code> jump on the second call.</p>
+
+  <div class="callout callout--source">
+    <span class="callout__label">Read alongside</span>
+    The <a href="../reference/caching-batch.html">caching &amp; batch sheet</a>: read 0.1&times;, 5-minute write
+    1.25&times;, 1-hour write 2&times; (PROVISIONAL); pays off after one read (5m) or two (1h).
+  </div>
+
+  <h2>Do it</h2>
+  <ol class="steps">
+    <li>Put a <code>cache_control</code> breakpoint on a big, stable system prefix:
+      <pre><code>BIG = open("manual.md").read()          # a large, stable prefix
+
+def ask(q):
+    return client.messages.create(
+        model="claude-sonnet-5", max_tokens=300,
+        system=[{"type": "text", "text": BIG,
+                 "cache_control": {"type": "ephemeral"}}],   # ttl defaults to 5m
+        messages=[{"role": "user", "content": q}],
+    )
+
+r1 = ask("Summarize section 2.")
+print("write:", r1.usage.cache_creation_input_tokens,
+      "read:", r1.usage.cache_read_input_tokens)</code></pre></li>
+    <li>Ask again within 5 minutes and compare:
+      <pre><code>r2 = ask("Now summarize section 3.")
+print("write:", r2.usage.cache_creation_input_tokens,   # ~0
+      "read:", r2.usage.cache_read_input_tokens)        # ~the size of BIG</code></pre>
+      The second call reads the prefix from cache &mdash; a fraction of the price.</li>
+    <li>Opt into the 1-hour TTL with <code>{"type": "ephemeral", "ttl": "1h"}</code> when reuse is spread out.</li>
+  </ol>
+
+  <div class="callout callout--warn">
+    <span class="callout__label">Keep the prefix stable</span>
+    A cache hit needs an identical prefix. Changing <code>tools</code>, <code>tool_choice</code>, or the
+    thinking config near the front invalidates the breakpoint. Put the volatile parts <em>after</em> the cached
+    prefix. <code>max_tokens: 0</code> pre-warms the cache without generating a reply.
+  </div>
+
+  <h2>Check yourself</h2>
+  <div class="quiz">
+    <script type="application/json">
+    [
+      {
+        "stem": "Roughly what does a prompt-cache read (a hit) cost?",
+        "options": [
+          "About 10% of the base input token price",
+          "About the same as the base input token price",
+          "About double the base input token price",
+          "Nothing at all once the cache is warmed"
+        ],
+        "answer": 0,
+        "explain": "A cache read is ~0.1x base input. Writes cost a premium (1.25x for 5-minute, 2x for 1-hour), so caching pays off with reuse."
+      },
+      {
+        "stem": "What is the default cache TTL if you don't set one?",
+        "options": [
+          "5 minutes, unless you opt into the 1-hour TTL",
+          "1 hour, unless you shorten it to 5 minutes",
+          "24 hours, matching the batch processing window",
+          "There is no default; a ttl is always required"
+        ],
+        "answer": 0,
+        "explain": "cache_control defaults to a 5-minute ephemeral TTL. You opt into 1h with ttl: '1h', which costs more to write but lasts longer."
+      },
+      {
+        "stem": "Which usage field proves a request hit the cache?",
+        "options": [
+          "cache_read_input_tokens rising on the reused call",
+          "cache_creation_input_tokens rising on every call",
+          "output_tokens dropping toward zero on reuse",
+          "input_tokens going negative once the cache warms"
+        ],
+        "answer": 0,
+        "explain": "cache_read_input_tokens counts tokens served from cache (billed at ~0.1x). cache_creation_input_tokens counts the write, which should be ~0 on a hit."
+      }
+    ]
+    </script>
+  </div>
+
+  <div class="callout callout--teacher">
+    <span class="callout__label">Ask your teacher</span>
+    Want to work out the break-even for <em>your</em> traffic pattern, or lay multiple breakpoints across a
+    growing conversation? Bring the numbers.
+  </div>
+
+  <nav class="lesson-nav">
+    <a href="0013-tokens-and-sampling.html">&larr; Tokens &amp; sampling</a>
+    <a href="0015-batch-api.html">Next &middot; Batch API &rarr;</a>
+  </nav>
+
+  <footer class="course-foot">CCDV-F &middot; Lesson 0014 &middot; Reference:
+    <a href="../reference/caching-batch.html">Caching &amp; batch</a></footer>
+</main>
+<script src="../assets/quiz.js"></script>
+</body>
+</html>

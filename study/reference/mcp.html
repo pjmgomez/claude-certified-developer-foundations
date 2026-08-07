@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Reference · MCP essentials</title>
+  <link rel="stylesheet" href="../assets/styles.css">
+</head>
+<body>
+<main class="sheet">
+  <header class="lesson-head">
+    <div class="lesson-kicker">Reference sheet</div>
+    <h1>MCP essentials</h1>
+    <p class="lesson-sub">Primitives, transports, lifecycle, and the smallest server that works.</p>
+    <div class="badges"><span class="badge">Domain 8.2 · MCP Server Development</span></div>
+  </header>
+
+  <p>The <strong>Model Context Protocol</strong> is an open, <strong>JSON-RPC 2.0</strong>, stateful
+  client&ndash;server protocol that standardises how an AI app connects to external tools and data. Write a
+  server once; any MCP-speaking client (Claude Code, Claude Desktop, your SDK app) can use it.</p>
+
+  <table>
+    <caption>Primitives</caption>
+    <thead><tr><th>Primitive</th><th>What it is</th></tr></thead>
+    <tbody>
+      <tr><td><strong>Tools</strong></td><td>Executable functions with JSON-Schema inputs (model-controlled).</td></tr>
+      <tr><td><strong>Resources</strong></td><td>URI-addressed, read-only data (application-controlled).</td></tr>
+      <tr><td><strong>Prompts</strong></td><td>Reusable prompt templates (user-controlled).</td></tr>
+      <tr><td>Sampling <span style="opacity:.6">(advanced)</span></td><td>The server asks the client&rsquo;s LLM to generate.</td></tr>
+      <tr><td>Roots <span style="opacity:.6">(advanced)</span></td><td>Client-provided scoped access boundaries.</td></tr>
+    </tbody>
+  </table>
+
+  <table>
+    <caption>Transports</caption>
+    <thead><tr><th>Transport</th><th>Use</th></tr></thead>
+    <tbody>
+      <tr><td><strong>stdio</strong></td><td>Local subprocess over stdin/stdout. The default; not sandboxed &mdash; it runs with your privileges.</td></tr>
+      <tr><td><strong>Streamable HTTP</strong></td><td>Remote server on a port (HTTP + optional SSE). (Plain SSE transport is superseded.)</td></tr>
+    </tbody>
+  </table>
+
+  <p><strong>Lifecycle:</strong> initialization &rarr; capability negotiation &rarr; normal operation
+  (<code>tools/list</code>, <code>tools/call</code>, <code>resources/list</code>,
+  <code>prompts/list</code>, &hellip;) &rarr; shutdown.</p>
+
+  <h2>Smallest Python server</h2>
+  <pre><code>from mcp.server.mcpserver import MCPServer   # formerly named FastMCP
+
+mcp = MCPServer("inventory")
+
+@mcp.tool()
+def stock_level(sku: str) -> int:
+    """Units in stock for a SKU."""
+    return {"A1": 12, "B2": 0}.get(sku, 0)
+
+@mcp.resource("inventory://skus")
+def all_skus() -> str:
+    """Every known SKU, one per line."""
+    return "A1\nB2"
+
+@mcp.prompt()
+def restock_note(sku: str) -> str:
+    """Draft a restock request."""
+    return f"Write a short restock request for SKU {sku}."
+
+if __name__ == "__main__":
+    mcp.run()            # stdio by default; mcp.run(transport="streamable-http") for a port</code></pre>
+
+  <p><strong>CLI:</strong> <code>mcp dev server.py</code> (Inspector) &middot; <code>mcp run server.py</code>
+  &middot; <code>mcp install</code> (Claude Desktop). Wire into Claude Code with
+  <code>claude mcp add</code> (verify flags in the Claude Code docs).</p>
+
+  <div class="callout callout--source">
+    <span class="callout__label">Primary source</span>
+    <a href="https://modelcontextprotocol.io">modelcontextprotocol.io</a>. Server API verified against
+    <a href="https://github.com/modelcontextprotocol/python-sdk">modelcontextprotocol/python-sdk</a>
+    (<code>MCPServer</code>, <code>@mcp.tool/resource/prompt</code>, <code>mcp.run()</code>).
+  </div>
+
+  <footer class="course-foot">CCDV-F reference &middot; used by
+    <a href="../lessons/0009-mcp-server.html">Lesson 0009</a>.</footer>
+</main>
+</body>
+</html>

@@ -1,0 +1,144 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Phase 1 · The shape of a Message</title>
+  <link rel="stylesheet" href="../assets/styles.css">
+</head>
+<body>
+<main>
+  <header class="lesson-head">
+    <div class="lesson-kicker">Phase 1 · Core API Mechanics</div>
+    <h1>The shape of a Message</h1>
+    <p class="lesson-sub">What you send, what comes back, and why the conversation lives in <em>your</em> code.</p>
+    <div class="badges">
+      <span class="badge">Domain 2.3 · API Mechanics</span>
+      <span class="badge badge--weight">Domain 2 = 33% of the exam</span>
+    </div>
+  </header>
+
+  <p>In Phase 0 you made one call. Now name its parts. A request has a few core fields; the response is a
+  <code>Message</code> object with a predictable structure. Master this and streaming, tools, and agents are
+  all just richer content flowing through the same envelope.</p>
+
+  <p><strong>Your win:</strong> a two-turn conversation you drive yourself, with a system prompt, where you
+  read <code>stop_reason</code> and inspect the content blocks.</p>
+
+  <h2>The request</h2>
+  <table>
+    <thead><tr><th>Field</th><th>Role</th></tr></thead>
+    <tbody>
+      <tr><td><code>model</code></td><td>Which model answers. <em>Required.</em></td></tr>
+      <tr><td><code>messages</code></td><td>The conversation so far: a list of <code>{role, content}</code>, alternating <code>user</code> / <code>assistant</code>. <em>Required.</em></td></tr>
+      <tr><td><code>max_tokens</code></td><td>Hard cap on output length. <em>Required.</em></td></tr>
+      <tr><td><code>system</code></td><td>Top-level role / instructions (a string, not a message).</td></tr>
+      <tr><td><code>temperature</code>, <code>top_p</code>, <code>top_k</code></td><td>Sampling controls (tune one, not several at once).</td></tr>
+      <tr><td><code>stop_sequences</code></td><td>Strings that force the model to stop.</td></tr>
+    </tbody>
+  </table>
+
+  <h2>The response</h2>
+  <p>A <code>Message</code> carries <code>id</code>, <code>role</code>, <code>model</code>,
+  <code>content</code> (a <strong>list of typed blocks</strong>, e.g. <code>{"type":"text","text":"..."}</code>),
+  <code>usage</code>, and <code>stop_reason</code> &mdash; one of <code>end_turn</code>, <code>max_tokens</code>,
+  <code>tool_use</code>, <code>stop_sequence</code>, or <code>refusal</code>.</p>
+
+  <div class="callout callout--warn">
+    <span class="callout__label">The API is stateless</span>
+    Claude remembers nothing between calls. To continue a conversation you resend the prior turns in
+    <code>messages</code> &mdash; the &ldquo;memory&rdquo; is a list <em>you</em> maintain. There is no
+    server-side session id.
+  </div>
+
+  <h2>Do it</h2>
+  <ol class="steps">
+    <li>Extend your <code>hello.py</code> into a two-turn chat:
+      <pre><code>import anthropic
+
+client = anthropic.Anthropic()
+MODEL = "claude-sonnet-5"   # verify on the models page
+SYS = "You are a terse tutor. Answer in one short sentence."
+
+first = client.messages.create(
+    model=MODEL, max_tokens=300, system=SYS,
+    messages=[{"role": "user", "content": "What is a content block?"}],
+)
+print("A:", first.content[0].text, "|", first.stop_reason)
+
+second = client.messages.create(
+    model=MODEL, max_tokens=300, system=SYS,
+    messages=[
+        {"role": "user", "content": "What is a content block?"},
+        {"role": first.role, "content": first.content},  # replay the whole assistant turn
+        {"role": "user", "content": "Give one example."},
+    ],
+)
+print("A:", second.content[0].text)</code></pre></li>
+    <li>Run it. Notice the second answer only makes sense because you <em>resent</em> the first exchange.</li>
+    <li>Delete the replayed assistant turn and rerun. Watch the follow-up lose the thread &mdash; proof the
+      state lived in your <code>messages</code> list, not on the server.</li>
+    <li>Print <code>first.content[0].type</code> and <code>first.usage</code> to see the block type and token cost.</li>
+  </ol>
+
+  <h2>Check yourself</h2>
+  <div class="quiz">
+    <script type="application/json">
+    [
+      {
+        "stem": "The Messages API is stateless. How do you continue a conversation?",
+        "options": [
+          "Resend all prior turns inside the messages list",
+          "Pass the previous response id back to the call",
+          "Let the server restore the session by api key",
+          "Set a conversation_id field on the next call"
+        ],
+        "answer": 0,
+        "explain": "You maintain the transcript and resend it every turn. The API keeps no session; the messages array is the whole memory."
+      },
+      {
+        "stem": "Besides model and messages, which field is required on every call?",
+        "options": [
+          "max_tokens, the hard cap on output length",
+          "system, the top-level role instructions text",
+          "temperature, the randomness sampling control",
+          "stop_sequences, the strings that halt output"
+        ],
+        "answer": 0,
+        "explain": "model, messages, and max_tokens are the three required fields. The rest are optional."
+      },
+      {
+        "stem": "What is response.content?",
+        "options": [
+          "A list of typed content blocks, not a string",
+          "A single plain-text string of the answer",
+          "A dict keyed by each block type it holds",
+          "The raw server-sent event stream object"
+        ],
+        "answer": 0,
+        "explain": "content is always a list of blocks (text, tool_use, thinking, ...). Even a plain answer arrives as content[0] of type text."
+      }
+    ]
+    </script>
+  </div>
+
+  <div class="callout callout--teacher">
+    <span class="callout__label">Ask your teacher</span>
+    Unsure why the assistant turn gets replayed as <code>content</code> objects rather than a string? That is
+    exactly the kind of thing to ask me &mdash; it pays off when we reach tool use.
+  </div>
+
+  <nav class="lesson-nav">
+    <a href="0001-setup-and-first-contact.html">&larr; Phase 0 &middot; First contact</a>
+    <a href="0003-streaming-sse.html">Next &middot; Streaming &rarr;</a>
+  </nav>
+
+  <footer class="course-foot">
+    CCDV-F &middot; Lesson 0002 &middot; Reference:
+    <a href="../reference/streaming-events.html">SSE event flow</a> &middot;
+    <a href="../reference/http-errors.html">HTTP errors</a>
+  </footer>
+</main>
+<script src="../assets/quiz.js"></script>
+</body>
+</html>

@@ -1,0 +1,110 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Phase 4 · Context engineering</title>
+  <link rel="stylesheet" href="../assets/styles.css">
+</head>
+<body>
+<main>
+  <header class="lesson-head">
+    <div class="lesson-kicker">Phase 4 · Prompt &amp; Context Engineering</div>
+    <h1>Context engineering</h1>
+    <p class="lesson-sub">Context is a budget, not a bucket. Spend it on signal.</p>
+    <div class="badges">
+      <span class="badge">Domain 6.1 · Context Engineering</span>
+      <span class="badge">Domain 1 · Subagents</span>
+    </div>
+  </header>
+
+  <p>Long-running agents fail less from bad reasoning than from <em>context rot</em> &mdash; windows stuffed with
+  stale tool dumps and detail. The discipline: treat context as a finite budget and keep it to the smallest set
+  of high-signal tokens.</p>
+
+  <p><strong>Your win:</strong> take a fat tool output and make it lean, and know when to hand work to a subagent.</p>
+
+  <h2>The moves</h2>
+  <ul>
+    <li><strong>Prune tool outputs.</strong> Return only what the model needs &mdash; paginate, filter,
+      range-select, set sensible defaults. A tool that returns 5,000 rows when 5 will do is a context leak.
+      (Claude Code truncates tool responses at ~25,000 tokens by default.)</li>
+    <li><strong>Steer toward token-efficient strategies.</strong> Many small, targeted searches usually beat one
+      giant dump the model must then wade through.</li>
+    <li><strong>Isolate with subagents.</strong> Give a sub-task its own context window; return only the distilled
+      result to the parent. The parent never sees the mess.</li>
+  </ul>
+
+  <h2>Do it</h2>
+  <ol class="steps">
+    <li>Find a tool in your Phase 2 loop that returns a big blob. Add pagination and field selection so it
+      returns, say, the top 5 rows and only the columns asked for.</li>
+    <li>Re-run a multi-step task and watch <code>usage.input_tokens</code> on later turns. Leaner tool results =
+      a smaller, sharper window = better answers for longer.</li>
+    <li>Sketch where a subagent would help: a research or search sub-task whose 20 intermediate steps the parent
+      should never carry &mdash; just its one-paragraph conclusion.</li>
+  </ol>
+
+  <div class="callout callout--warn">
+    <span class="callout__label">The principle to carry</span>
+    Every token you add competes for the model&rsquo;s attention. More context is not more capability past a point
+    &mdash; curate ruthlessly. The next lesson automates this with context editing, compaction, and memory.
+  </div>
+
+  <h2>Check yourself</h2>
+  <div class="quiz">
+    <script type="application/json">
+    [
+      {
+        "stem": "The core goal of context engineering is...",
+        "options": [
+          "The smallest set of high-signal tokens for the task",
+          "The largest context window the model tier allows",
+          "Storing the entire conversation verbatim, forever",
+          "Maximizing tool calls so the model sees more data"
+        ],
+        "answer": 0,
+        "explain": "Context is finite. Curate it down to high-signal tokens; stuffing the window trades attention for noise."
+      },
+      {
+        "stem": "A tool that returns 5,000 rows when the model needs 5 is...",
+        "options": [
+          "A context leak; prune with pagination and filtering",
+          "Ideal, because more data always helps the model",
+          "Fine, since the model ignores what it doesn't need",
+          "Only a problem if it also exceeds max_tokens output"
+        ],
+        "answer": 0,
+        "explain": "Bloated tool outputs are the classic context leak. Paginate, filter, and range-select so the tool returns only what's needed."
+      },
+      {
+        "stem": "Handing a sub-task to a subagent helps because...",
+        "options": [
+          "It gets its own window; only the distilled result returns",
+          "It shares the parent's window to keep full history intact",
+          "It runs on a cheaper model with no context limit at all",
+          "It disables context editing so nothing is ever cleared"
+        ],
+        "answer": 0,
+        "explain": "Subagents isolate context: the messy intermediate steps stay in the subagent's window, and the parent receives only the conclusion."
+      }
+    ]
+    </script>
+  </div>
+
+  <div class="callout callout--teacher">
+    <span class="callout__label">Ask your teacher</span>
+    Bring a tool that dumps too much and we&rsquo;ll design its pruning together, then measure the token win.
+  </div>
+
+  <nav class="lesson-nav">
+    <a href="0018-structured-outputs.html">&larr; Structured outputs</a>
+    <a href="0020-context-editing-memory.html">Next &middot; Context editing &amp; memory &rarr;</a>
+  </nav>
+
+  <footer class="course-foot">CCDV-F &middot; Lesson 0019 &middot; Reference:
+    <a href="../reference/context-management.html">Context management</a></footer>
+</main>
+<script src="../assets/quiz.js"></script>
+</body>
+</html>

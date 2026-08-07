@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Reference · Prompt injection &amp; security</title>
+  <link rel="stylesheet" href="../assets/styles.css">
+</head>
+<body>
+<main class="sheet">
+  <header class="lesson-head">
+    <div class="lesson-kicker">Reference sheet</div>
+    <h1>Prompt injection &amp; security</h1>
+    <p class="lesson-sub">Two threat models, layered defenses, and the principles underneath.</p>
+    <div class="badges"><span class="badge">Domain 7.1 / 7.2 · Security</span></div>
+  </header>
+
+  <table>
+    <caption>Two threat models</caption>
+    <thead><tr><th>Direct / jailbreak</th><th>Indirect injection</th></tr></thead>
+    <tbody>
+      <tr>
+        <td>The <strong>user is the adversary</strong>, trying to break your instructions.</td>
+        <td>The user is trusted, but Claude processes <strong>adversarial third-party content</strong> &mdash; web pages, emails, documents, tool results.</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2>Layered mitigations</h2>
+  <ul>
+    <li><strong>Harmlessness screens</strong> &mdash; pre-screen input with a lightweight model (Haiku 4.5) before the main model.</li>
+    <li><strong>Trust boundaries</strong> &mdash; treat all retrieved / tool content as untrusted; separate it from instructions with distinct fields and XML tags.</li>
+    <li><strong>Input validation</strong> &mdash; a speed bump, not a wall.</li>
+    <li><strong>Output monitoring</strong> &mdash; scan responses for signs of leakage / injection success.</li>
+    <li><strong>Computer / browser use</strong> &mdash; Anthropic runs classifiers that detect injections and make Claude ask for confirmation; injection resistance is also trained in via RL.</li>
+  </ul>
+
+  <div class="callout callout--warn">
+    <span class="callout__label">No agent is immune</span>
+    On a combined benchmark, Claude Opus 4.5&rsquo;s single-attempt attack-success rate was ~<strong>4.7%</strong>
+    (vs. higher for peers) &mdash; but it climbs with repeated attempts (~34% at 10, ~63% at 100). Meaningful
+    residual risk remains; layer defenses and assume some attempts succeed. (Third-party figures; indicative.)
+  </div>
+
+  <h2>Guardrail layering</h2>
+  <p>Prompt-level guard prompts <strong>+</strong> classifier / LLM-as-judge (Llama Guard, ShieldGemma,
+  PromptGuard, NeMo Guardrails) <strong>+</strong> deterministic controls. Prompt guardrails <em>alone</em> are
+  insufficient &mdash; they share the same computational substrate as the threat.</p>
+
+  <h2>Secure-by-design &amp; data</h2>
+  <ul>
+    <li><strong>AAA / CIA</strong> &mdash; authentication, authorization, confidentiality, privacy, integrity.</li>
+    <li><strong>Least privilege</strong> &mdash; pre-approve safe tools, deny dangerous ones; egress allowlists limit exfiltration (but even allowlisted endpoints can be abused &mdash; combine with output filtering).</li>
+    <li><strong>PII / data leakage</strong> &mdash; minimize PII in prompts. Structured outputs are HIPAA-eligible, but <em>PHI must not appear in schema definitions</em> (schemas are cached separately).</li>
+  </ul>
+
+  <div class="callout callout--source">
+    <span class="callout__label">Primary source</span>
+    <a href="https://platform.claude.com/docs/en/test-and-evaluate/strengthen-guardrails/mitigate-jailbreaks">Mitigate jailbreaks &amp; prompt injection</a> ·
+    <a href="https://www.anthropic.com/research/prompt-injection-defenses">prompt-injection defenses</a>.
+  </div>
+  <footer class="course-foot">CCDV-F reference &middot; used by
+    <a href="../lessons/0031-prompt-injection.html">0031</a>,
+    <a href="../lessons/0032-guardrails.html">0032</a>,
+    <a href="../lessons/0034-data-leakage-pii.html">0034</a>.</footer>
+</main>
+</body>
+</html>

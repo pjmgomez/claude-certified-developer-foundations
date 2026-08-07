@@ -1,0 +1,173 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>CCDV-F Study Course · Map</title>
+  <link rel="stylesheet" href="assets/styles.css">
+  <style>
+    .phase { border: 1px solid var(--rule); border-radius: 8px; padding: 1rem 1.2rem; margin: 1rem 0; background: #fff; }
+    .phase > h3 { margin: 0 0 .2rem; }
+    .phase .dom { font-family: var(--sans); font-size: .78rem; color: var(--accent); font-weight: 600; }
+    .phase ol { margin: .6rem 0 0; padding-left: 1.2rem; }
+    .phase li { margin: .3rem 0; }
+    .refs { columns: 2; column-gap: 1.5rem; font-family: var(--sans); font-size: .95rem; }
+    @media (max-width: 640px) { .refs { columns: 1; } }
+    .hero-sub { font-size: 1.2rem; color: var(--ink-soft); }
+  </style>
+</head>
+<body>
+<main>
+  <header class="lesson-head">
+    <div class="lesson-kicker">Claude Certified Developer &ndash; Foundations</div>
+    <h1>Study course map</h1>
+    <p class="hero-sub">37 lessons &middot; 14 reference sheets &middot; one capstone &mdash; a hands-on path to
+    durable Claude-development competence, with CCDV-F as the milestone.</p>
+    <div class="badges">
+      <span class="badge">Python labs</span>
+      <span class="badge">Retrieval practice</span>
+      <span class="badge badge--weight">Primary-source grounded</span>
+    </div>
+  </header>
+
+  <div class="callout callout--teacher">
+    <span class="callout__label">How to use this</span>
+    Work top to bottom. Each lesson is one win: read it, run its Python lab, take the quiz from memory, then
+    move on. Reference sheets are for quick review and printing. Start with
+    <a href="MISSION.md">MISSION.md</a> for the why; track progress in <a href="NOTES.md">NOTES.md</a>.
+  </div>
+
+  <div class="phase">
+    <span class="dom">Phase 0 · Setup</span>
+    <h3>Environment &amp; first contact</h3>
+    <ol><li><a href="lessons/0001-setup-and-first-contact.html">Your first words with Claude</a></li></ol>
+  </div>
+
+  <div class="phase">
+    <span class="dom">Phase 1 · Core API mechanics &mdash; Domain 2 (33%) + Domain 4</span>
+    <h3>Messages, streaming, input, errors</h3>
+    <ol>
+      <li><a href="lessons/0002-messages-api-anatomy.html">The shape of a Message</a></li>
+      <li><a href="lessons/0003-streaming-sse.html">Streaming, event by event</a></li>
+      <li><a href="lessons/0004-multimodal-input.html">Images &amp; documents in</a></li>
+      <li><a href="lessons/0005-errors-and-recovery.html">When calls go wrong</a></li>
+    </ol>
+  </div>
+
+  <div class="phase">
+    <span class="dom">Phase 2 · Tools &amp; MCP &mdash; Domain 8 (10.6%)</span>
+    <h3>Tool use, MCP servers, mechanism choice</h3>
+    <ol>
+      <li><a href="lessons/0006-tool-use-loop.html">The tool-use loop</a></li>
+      <li><a href="lessons/0007-directing-tools.html">Directing tools</a></li>
+      <li><a href="lessons/0008-writing-good-tools.html">Writing tools Claude uses well</a></li>
+      <li><a href="lessons/0009-mcp-server.html">Build an MCP server</a></li>
+      <li><a href="lessons/0010-choosing-your-mechanism.html">Choosing your mechanism</a></li>
+    </ol>
+  </div>
+
+  <div class="phase">
+    <span class="dom">Phase 3 · Models &amp; optimization &mdash; Domain 5 (16.8%)</span>
+    <h3>Model choice, thinking, caching, batch</h3>
+    <ol>
+      <li><a href="lessons/0011-model-selection.html">Choosing a model</a></li>
+      <li><a href="lessons/0012-thinking-and-effort.html">Thinking &amp; effort</a></li>
+      <li><a href="lessons/0013-tokens-and-sampling.html">Tokens, sampling &amp; non-determinism</a></li>
+      <li><a href="lessons/0014-prompt-caching.html">Prompt caching</a></li>
+      <li><a href="lessons/0015-batch-api.html">The Batch API</a></li>
+    </ol>
+  </div>
+
+  <div class="phase">
+    <span class="dom">Phase 4 · Prompt &amp; context engineering &mdash; Domain 6 (11%)</span>
+    <h3>Prompts, structured output, context</h3>
+    <ol>
+      <li><a href="lessons/0016-prompt-engineering.html">Prompt engineering essentials</a></li>
+      <li><a href="lessons/0017-steering-output.html">Steering output</a></li>
+      <li><a href="lessons/0018-structured-outputs.html">Structured outputs</a></li>
+      <li><a href="lessons/0019-context-engineering.html">Context engineering</a></li>
+      <li><a href="lessons/0020-context-editing-memory.html">Context editing, compaction &amp; memory</a></li>
+    </ol>
+  </div>
+
+  <div class="phase">
+    <span class="dom">Phase 5 · Agents &amp; workflows &mdash; Domain 1 (14.7%)</span>
+    <h3>Patterns, the Agent SDK, frameworks</h3>
+    <ol>
+      <li><a href="lessons/0021-workflow-vs-agent.html">Workflow vs agent</a></li>
+      <li><a href="lessons/0022-workflow-patterns.html">The five workflow patterns</a></li>
+      <li><a href="lessons/0023-agent-sdk.html">The Claude Agent SDK</a></li>
+      <li><a href="lessons/0024-subagents-and-hooks.html">Subagents &amp; hooks</a></li>
+      <li><a href="lessons/0025-agent-frameworks.html">Agent frameworks</a></li>
+    </ol>
+  </div>
+
+  <div class="phase">
+    <span class="dom">Phase 6 · Claude Code &amp; config &mdash; Domain 3 (3.1%) + 2.5 / 2.6</span>
+    <h3>CLAUDE.md, Skills, settings, design</h3>
+    <ol>
+      <li><a href="lessons/0026-claude-md-hierarchy.html">The CLAUDE.md hierarchy</a></li>
+      <li><a href="lessons/0027-rules-skills-commands.html">Rules, Skills &amp; Commands</a></li>
+      <li><a href="lessons/0028-agents-and-memory.html">Agents &amp; Agent Memory</a></li>
+      <li><a href="lessons/0029-configuration-management.html">Configuration management</a></li>
+      <li><a href="lessons/0030-application-design.html">Application design across interfaces</a></li>
+    </ol>
+  </div>
+
+  <div class="phase">
+    <span class="dom">Phase 7 · Security &amp; safety &mdash; Domain 7 (8.1%)</span>
+    <h3>Injection, guardrails, hooks, secrets</h3>
+    <ol>
+      <li><a href="lessons/0031-prompt-injection.html">Prompt injection &amp; jailbreaks</a></li>
+      <li><a href="lessons/0032-guardrails.html">Guardrails &amp; safe deployment</a></li>
+      <li><a href="lessons/0033-claude-hooks.html">Claude hooks for guardrails</a></li>
+      <li><a href="lessons/0034-data-leakage-pii.html">Data leakage &amp; PII</a></li>
+      <li><a href="lessons/0035-secrets-and-keys.html">Identity, secrets &amp; keys</a></li>
+    </ol>
+  </div>
+
+  <div class="phase">
+    <span class="dom">Phase 8 · Capstone &amp; readiness</span>
+    <h3>Build one app, then the go/no-go check</h3>
+    <ol>
+      <li><a href="lessons/0036-capstone.html">Capstone: build &amp; operate one app</a> &middot;
+        <a href="capstone/capstone.py">capstone.py</a></li>
+      <li><a href="lessons/0037-exam-readiness.html">Exam readiness</a></li>
+    </ol>
+  </div>
+
+  <h2>Reference sheets</h2>
+  <div class="refs">
+    <p><a href="reference/http-errors.html">HTTP &amp; error taxonomy</a><br>
+    <a href="reference/streaming-events.html">Streaming (SSE) event flow</a><br>
+    <a href="reference/tool-choice.html">tool_choice &amp; tool types</a><br>
+    <a href="reference/mcp.html">MCP essentials</a><br>
+    <a href="reference/models-pricing.html">Models &amp; pricing</a><br>
+    <a href="reference/caching-batch.html">Caching &amp; batch</a><br>
+    <a href="reference/structured-outputs.html">Structured outputs</a></p>
+    <p><a href="reference/context-management.html">Context management</a><br>
+    <a href="reference/workflow-patterns.html">Workflow patterns</a><br>
+    <a href="reference/agent-sdk.html">Claude Agent SDK</a><br>
+    <a href="reference/claude-code-files.html">Claude Code files</a><br>
+    <a href="reference/claude-code-config.html">Claude Code config</a><br>
+    <a href="reference/prompt-injection.html">Prompt injection &amp; security</a><br>
+    <a href="reference/hooks.html">Claude Code hooks</a></p>
+  </div>
+
+  <div class="callout callout--warn">
+    <span class="callout__label">A standing caveat</span>
+    Volatile facts &mdash; prices, model IDs, beta headers, cache multipliers &mdash; are flagged
+    <strong>PROVISIONAL</strong> throughout. Confirm them against <code>platform.claude.com/docs</code> before you
+    ship or sit the exam. Verifying live is itself an exam-relevant habit.
+  </div>
+
+  <footer class="course-foot">
+    CCDV-F durable-competence track &middot;
+    <a href="MISSION.md">Mission</a> &middot;
+    <a href="RESOURCES.md">Resources</a> &middot;
+    <a href="GLOSSARY.md">Glossary</a> &middot;
+    <a href="NOTES.md">Notes &amp; progress</a>
+  </footer>
+</main>
+</body>
+</html>

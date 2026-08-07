@@ -1,0 +1,199 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Phase 8 · Exam readiness</title>
+  <link rel="stylesheet" href="../assets/styles.css">
+</head>
+<body>
+<main>
+  <header class="lesson-head">
+    <div class="lesson-kicker">Phase 8 · Capstone &amp; Readiness</div>
+    <h1>Exam readiness</h1>
+    <p class="lesson-sub">One interleaved pass across all eight domains &mdash; then the go/no-go check.</p>
+    <div class="badges"><span class="badge">All domains</span><span class="badge badge--weight">Final review</span></div>
+  </header>
+
+  <p>You&rsquo;ve seen every topic once. Retrieval across <em>all</em> of them, mixed together, is what proves it
+  stuck. Do the gut-checks out loud, take the interleaved quiz cold, then read the official samples.</p>
+
+  <h2>Gut-checks &mdash; explain each in one sentence</h2>
+  <p>If any of these is fuzzy, reopen the linked lesson before booking the exam:</p>
+  <ul>
+    <li><strong>Adaptive vs. extended thinking</strong> &mdash; <a href="0012-thinking-and-effort.html">0012</a></li>
+    <li><strong><code>output_config.format</code> vs. <code>strict: true</code></strong> &mdash; <a href="0018-structured-outputs.html">0018</a></li>
+    <li><strong>429 vs. 529</strong> &mdash; <a href="0005-errors-and-recovery.html">0005</a></li>
+    <li><strong>Workflow vs. agent</strong> &mdash; <a href="0021-workflow-vs-agent.html">0021</a></li>
+    <li><strong>Orchestrator&ndash;workers vs. parallelization</strong> &mdash; <a href="0022-workflow-patterns.html">0022</a></li>
+    <li><strong>Realtime vs. batch</strong> &mdash; <a href="0015-batch-api.html">0015</a></li>
+    <li><strong>Built-in vs. custom tool vs. Skill vs. MCP</strong> &mdash; <a href="0010-choosing-your-mechanism.html">0010</a></li>
+  </ul>
+
+  <h2>Interleaved quiz</h2>
+  <p>Answer from memory &mdash; no scrolling back.</p>
+  <div class="quiz">
+    <script type="application/json">
+    [
+      {
+        "stem": "During streaming, the cumulative output-token count is reported on...",
+        "options": [
+          "message_delta, near the end of the stream",
+          "message_start, at the very beginning of it",
+          "each content_block_stop, one per block",
+          "every ping event, as a running subtotal"
+        ],
+        "answer": 0,
+        "explain": "Input tokens land on message_start; accumulating output_tokens is reported on message_delta. (Phase 1)"
+      },
+      {
+        "stem": "Your account hit its rate limit. Which status and behavior?",
+        "options": [
+          "429 rate_limit_error; retry with backoff, honor retry-after",
+          "529 overloaded_error; the whole API is down for everyone",
+          "400 invalid_request_error; fix the request, do not retry",
+          "401 authentication_error; rotate the key and try again"
+        ],
+        "answer": 0,
+        "explain": "429 is your account's limit (retryable, honor retry-after). 529 is the API overloaded across all users. (Phase 1 / Domain 4)"
+      },
+      {
+        "stem": "A prompt-cache read (hit) costs roughly...",
+        "options": [
+          "10% of the base input token price",
+          "125% of the base input token price",
+          "200% of the base input token price",
+          "the same as the base input price"
+        ],
+        "answer": 0,
+        "explain": "Read = 0.1x base input; writes cost 1.25x (5m) or 2x (1h). Caching pays off with reuse. (Phase 3)"
+      },
+      {
+        "stem": "On the newest models, the recommended thinking configuration is...",
+        "options": [
+          "adaptive, replacing enabled plus a fixed budget_tokens",
+          "enabled, with budget_tokens set just under max_tokens",
+          "disabled, because thinking always adds latency cost",
+          "summarized, which is its own thinking config type"
+        ],
+        "answer": 0,
+        "explain": "adaptive is preferred; enabled + budget_tokens is deprecated and can 400 on the newest models. (Phase 3)"
+      },
+      {
+        "stem": "The subtasks are decided dynamically at runtime by a central model. This is...",
+        "options": [
+          "Orchestrator-workers, not parallelization",
+          "Parallelization by sectioning subtasks",
+          "Prompt chaining with programmatic gates",
+          "Routing to a specialized follow-up call"
+        ],
+        "answer": 0,
+        "explain": "Parallelization's subtasks are predefined; the orchestrator discovers them at runtime. (Phase 5)"
+      },
+      {
+        "stem": "MCP's three core primitives are...",
+        "options": [
+          "Tools, Resources, and Prompts",
+          "Agents, Sessions, and Hooks",
+          "Rules, Skills, and Commands",
+          "Models, Tokens, and Streams"
+        ],
+        "answer": 0,
+        "explain": "Tools (functions), Resources (read-only URI data), Prompts (templates). Sampling and Roots are advanced. (Phase 2)"
+      },
+      {
+        "stem": "To guarantee a tool call's arguments match its schema, you set...",
+        "options": [
+          "strict: true on the tool definition",
+          "output_config.format on the request",
+          "tool_choice to any on the call",
+          "temperature to 0 on the request"
+        ],
+        "answer": 0,
+        "explain": "strict:true pins tool arguments; output_config.format pins the response text. (Phase 4)"
+      },
+      {
+        "stem": "A PreToolUse hook that denies a call blocks it even under...",
+        "options": [
+          "bypassPermissions / --dangerously-skip-permissions",
+          "a valid API key with full workspace access",
+          "streaming mode with output-format stream-json",
+          "a cached system prompt from a prior request"
+        ],
+        "answer": 0,
+        "explain": "A PreToolUse deny is evaluated before permission-mode checks, so it blocks even under bypass. (Phase 7)"
+      },
+      {
+        "stem": "The CLAUDE.md tiers (managed, user, project, local) combine by being...",
+        "options": [
+          "Concatenated; later tiers add, not override",
+          "Overridden; the most specific file wins",
+          "Merged alphabetically by their file path",
+          "Loaded one at a time, never together"
+        ],
+        "answer": 0,
+        "explain": "All tiers are concatenated; later ones add to earlier ones rather than replacing them. (Phase 6)"
+      },
+      {
+        "stem": "The most effective defense against indirect prompt injection is to...",
+        "options": [
+          "Isolate untrusted content and gate sensitive tools",
+          "Raise the temperature to make behavior unpredictable",
+          "Add a polite 'no injections please' to the prompt",
+          "Switch to a larger, more instruction-following model"
+        ],
+        "answer": 0,
+        "explain": "Isolate untrusted content from trusted instructions and enforce least-privilege guardrails. (Phase 7, sample Q2)"
+      }
+    ]
+    </script>
+  </div>
+
+  <h2>Official sample questions</h2>
+  <p>Published in the exam guide (safe to study). Answer each, then check:</p>
+  <div class="callout callout--source">
+    <span class="callout__label">Sample 1 &middot; Domain 2</span>
+    Process 10,000 documents overnight, cost-first, not needed till morning &rarr; <strong>Use the Message
+    Batches API</strong> (latency-tolerant, ~50% cheaper). Parallel sync calls don&rsquo;t cut per-token cost;
+    lowering <code>max_tokens</code> or blindly downsizing misses the batch-vs-realtime axis.
+  </div>
+  <div class="callout callout--source">
+    <span class="callout__label">Sample 2 &middot; Domain 7</span>
+    A summarized page hides &ldquo;reveal your system prompt&rdquo; &rarr; <strong>Treat page content as
+    untrusted, isolate it, and use guardrails/hooks so injected text can&rsquo;t trigger sensitive actions.</strong>
+    Temperature is irrelevant; a polite request isn&rsquo;t a control; a bigger model can be <em>more</em> susceptible.
+  </div>
+  <div class="callout callout--source">
+    <span class="callout__label">Sample 3 &middot; Domain 8</span>
+    A capability reusable across several apps, maintained independently &rarr; <strong>Build an MCP server.</strong>
+    Hard-coding into prompts isn&rsquo;t reusable; pasting data gives no live access; built-in tools don&rsquo;t
+    reach arbitrary internal APIs.
+  </div>
+
+  <h2>Readiness checklist</h2>
+  <ul>
+    <li>Every gut-check above answerable in one clean sentence.</li>
+    <li>Interleaved quiz &ge; 8/10 <em>cold</em>, and you know <em>why</em> the wrong options are wrong.</li>
+    <li>The <a href="0036-capstone.html">capstone</a> runs, shows a cache hit, and blocks the injection.</li>
+    <li>You can recite the exact identifiers: model IDs, error <code>type</code>s, SSE events,
+      <code>tool_choice</code> values, cache multipliers.</li>
+  </ul>
+
+  <div class="callout callout--warn">
+    <span class="callout__label">Exam-day facts</span>
+    53 items, 120 minutes, scaled <strong>720 / 1000</strong> to pass. Weights: Applications 33.1% &middot; Model
+    Selection 16.8% &middot; Agents 14.7% &middot; Prompt/Context 11% &middot; Tools/MCP 10.6% &middot; Security
+    8.1% &middot; Claude Code 3.1% &middot; Eval/Debug 2.6%. Retake waits: 14 / 30 / 90 days; up to 4 attempts a
+    year. And per the exam policy: no AI assistance <em>during</em> the exam &mdash; this workspace is for before.
+  </div>
+
+  <nav class="lesson-nav">
+    <a href="0036-capstone.html">&larr; Capstone</a>
+    <a href="../index.html">Course map &rarr;</a>
+  </nav>
+
+  <footer class="course-foot">CCDV-F &middot; Lesson 0037 &middot; The finish line. Schedule when the checklist is green.</footer>
+</main>
+<script src="../assets/quiz.js"></script>
+</body>
+</html>

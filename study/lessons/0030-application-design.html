@@ -1,0 +1,114 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Phase 6 · Application design across interfaces</title>
+  <link rel="stylesheet" href="../assets/styles.css">
+</head>
+<body>
+<main>
+  <header class="lesson-head">
+    <div class="lesson-kicker">Phase 6 · Claude Application Design</div>
+    <h1>Application design across interfaces</h1>
+    <p class="lesson-sub">Where an instruction lives changes how well it&rsquo;s followed.</p>
+    <div class="badges">
+      <span class="badge">Domain 2.5 · Claude Application Design</span>
+      <span class="badge badge--weight">8.6% of the exam</span>
+    </div>
+  </header>
+
+  <p>The same instruction behaves differently depending on <em>where</em> you put it &mdash; a CLAUDE.md line, a
+  system prompt, a user turn, a tool description. This lesson ties together the placement lessons from the whole
+  course into one design view across Claude Code, Desktop, claude.ai, the API, and the SDKs.</p>
+
+  <p><strong>Your win:</strong> for a given instruction, pick the right home across interfaces &mdash; and know the
+  four design concerns that recur everywhere.</p>
+
+  <h2>How interfaces layer instructions</h2>
+  <table>
+    <thead><tr><th>Surface</th><th>Where instructions live</th></tr></thead>
+    <tbody>
+      <tr><td>API / SDKs</td><td><code>system</code> prompt (role/scene) + <code>messages</code> (task). You control every layer.</td></tr>
+      <tr><td>Claude Code</td><td>CLAUDE.md + Rules + Skills + settings, then your turns. Persistent project memory.</td></tr>
+      <tr><td>Claude Desktop / claude.ai</td><td>App-managed system prompt + your messages (+ project instructions).</td></tr>
+    </tbody>
+  </table>
+  <p>The rule that carries everywhere: <strong>system prompt for high-level role and scene-setting; specific task
+  instructions in the user turn</strong>, where Claude follows them most closely.</p>
+
+  <h2>Four concerns that recur</h2>
+  <ul>
+    <li><strong>Content boundaries.</strong> Separate trusted instructions from untrusted data with distinct
+      fields and XML tags (Lessons 0016&ndash;0017; hardened in Phase 7).</li>
+    <li><strong>Schema design.</strong> Design tool <code>input_schema</code> and structured-output schemas
+      deliberately (Lessons 0008, 0018).</li>
+    <li><strong>Session hygiene.</strong> Manage conversation state; clear stale context with <code>/clear</code>
+      and <code>/compact</code> (Lessons 0019&ndash;0020).</li>
+    <li><strong>Plugin management.</strong> Bundle skills, agents, hooks, and MCP servers as a
+      <code>.claude-plugin/plugin.json</code> for reuse across projects.</li>
+  </ul>
+
+  <div class="callout callout--warn">
+    <span class="callout__label">Placement is a design decision</span>
+    Don&rsquo;t bury a must-follow rule in a 300-line CLAUDE.md and hope. Put durable project rules in
+    CLAUDE.md/Rules, role in the system prompt, the specific ask in the user turn, and hard guarantees in tools /
+    structured outputs / hooks &mdash; not in prose alone.
+  </div>
+
+  <h2>Check yourself</h2>
+  <div class="quiz">
+    <script type="application/json">
+    [
+      {
+        "stem": "Across interfaces, high-level role belongs in the system prompt and specific task instructions belong...",
+        "options": [
+          "In the user turn, where Claude follows them most closely",
+          "In the system prompt too, duplicated for extra emphasis",
+          "In a tool description, so they load on every single call",
+          "In CLAUDE.md only, never in the messages themselves"
+        ],
+        "answer": 0,
+        "explain": "System prompt = role and scene-setting; the specific task instructions go in the user turn, which Claude follows most closely."
+      },
+      {
+        "stem": "A hard guarantee about output shape should come from...",
+        "options": [
+          "Tools / structured outputs / hooks, not prose alone",
+          "A strongly-worded sentence in the system prompt",
+          "Raising the temperature to force compliance",
+          "A longer CLAUDE.md that repeats the requirement"
+        ],
+        "answer": 0,
+        "explain": "Prose is 'should'. For a guarantee, use structured outputs or strict tools (shape) and hooks (actions) \u2014 deterministic layers, not persuasion."
+      },
+      {
+        "stem": "A plugin (.claude-plugin/plugin.json) exists to...",
+        "options": [
+          "Bundle skills, agents, hooks, and MCP servers for reuse",
+          "Replace the CLAUDE.md hierarchy with a single file",
+          "Store the API key so tools can authenticate",
+          "Force every model call to use structured outputs"
+        ],
+        "answer": 0,
+        "explain": "A plugin packages a whole configuration \u2014 skills, agents, hooks, MCP servers \u2014 so it can travel and be reused across projects."
+      }
+    ]
+    </script>
+  </div>
+
+  <div class="callout callout--teacher">
+    <span class="callout__label">Ask your teacher</span>
+    Bring an instruction that keeps getting ignored and we&rsquo;ll decide which layer it actually belongs in.
+  </div>
+
+  <nav class="lesson-nav">
+    <a href="0029-configuration-management.html">&larr; Configuration management</a>
+    <span>Phase 6 complete &middot; Phase 7 (Security &amp; safety) up next</span>
+  </nav>
+
+  <footer class="course-foot">CCDV-F &middot; Lesson 0030</footer>
+</main>
+<script src="../assets/quiz.js"></script>
+</body>
+</html>

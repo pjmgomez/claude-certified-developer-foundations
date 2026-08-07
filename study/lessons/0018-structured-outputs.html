@@ -1,0 +1,130 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Phase 4 · Structured outputs</title>
+  <link rel="stylesheet" href="../assets/styles.css">
+</head>
+<body>
+<main>
+  <header class="lesson-head">
+    <div class="lesson-kicker">Phase 4 · Prompt &amp; Context Engineering</div>
+    <h1>Structured outputs</h1>
+    <p class="lesson-sub">Stop parsing hopeful text &mdash; guarantee the JSON, or the tool arguments.</p>
+    <div class="badges">
+      <span class="badge">Domain 6.3 · Output Handling</span>
+      <span class="badge">Domain 8.1 · Tools</span>
+    </div>
+  </header>
+
+  <p>Coaxing valid JSON with prompts works&hellip; until it doesn&rsquo;t, at 3am, on row 4,000. Structured
+  outputs make the shape a <em>guarantee</em> via grammar-constrained decoding. Two flavours: constrain the
+  <strong>response text</strong>, or constrain a <strong>tool call&rsquo;s arguments</strong>.</p>
+
+  <p><strong>Your win:</strong> get back JSON that is guaranteed to parse, and make a tool&rsquo;s arguments
+  schema-valid with one flag.</p>
+
+  <div class="callout callout--source">
+    <span class="callout__label">Read alongside</span>
+    The <a href="../reference/structured-outputs.html">structured-outputs sheet</a>: <code>output_config.format</code>
+    for response JSON, <code>strict:true</code> for tool arguments; both behind a beta header; incompatible with
+    citations and prefilling.
+  </div>
+
+  <h2>Do it</h2>
+  <ol class="steps">
+    <li>Guarantee a JSON response with a schema:
+      <pre><code>schema = {"type": "object",
+          "properties": {"name": {"type": "string"}, "age": {"type": "integer"}},
+          "required": ["name", "age"]}
+
+resp = client.messages.create(
+    model="claude-sonnet-5", max_tokens=200,
+    output_config={"format": {"type": "json_schema", "schema": schema}},
+    messages=[{"role": "user", "content": "Extract: John Doe is 30 years old."}],
+)
+import json
+data = json.loads(resp.content[0].text)     # will not throw</code></pre></li>
+    <li>Prefer Pydantic? Let the SDK build the schema and parse the reply:
+      <pre><code>from pydantic import BaseModel
+class User(BaseModel):
+    name: str
+    age: int
+
+msg = client.messages.parse(
+    model="claude-sonnet-5", max_tokens=200, output_format=User,
+    messages=[{"role": "user", "content": "Extract: John Doe is 30 years old."}],
+)</code></pre></li>
+    <li>Inside a tool loop, pin the <em>arguments</em> instead with <code>strict: true</code>:
+      <pre><code>tools = [{"name": "record_user",
+          "description": "Save a user record.",
+          "input_schema": schema,
+          "strict": True}]     # tool_use.input is guaranteed schema-valid</code></pre></li>
+  </ol>
+
+  <div class="callout callout--warn">
+    <span class="callout__label">Guaranteed shape is not guaranteed truth</span>
+    Only a subset of JSON Schema is enforced &mdash; keywords like <code>minimum</code> become description hints,
+    not hard constraints. And a schema-valid object can still be <em>wrong</em>. Keep validating; stay skeptical
+    of confident output.
+  </div>
+
+  <h2>Check yourself</h2>
+  <div class="quiz">
+    <script type="application/json">
+    [
+      {
+        "stem": "output_config.format constrains...",
+        "options": [
+          "Claude's response text to be valid JSON for a schema",
+          "A tool call's arguments to match its input_schema",
+          "The system prompt to a fixed maximum token length",
+          "The order in which streaming events are delivered"
+        ],
+        "answer": 0,
+        "explain": "output_config.format guarantees the response text is valid JSON. strict:true is the one that pins a tool call's arguments."
+      },
+      {
+        "stem": "To guarantee a tool call's arguments match its schema, you set...",
+        "options": [
+          "strict: true on the tool definition",
+          "tool_choice to any on the request",
+          "output_config.format with the tool schema",
+          "temperature to 0 on every tool call"
+        ],
+        "answer": 0,
+        "explain": "strict: true guarantees the tool_use.input validates against input_schema. It pairs naturally with function-calling loops."
+      },
+      {
+        "stem": "Even with structured outputs, you should still...",
+        "options": [
+          "Validate the content, since valid shape isn't valid data",
+          "Trust the values fully, because the schema was enforced",
+          "Avoid tools, since they conflict with any JSON output",
+          "Disable thinking, or the JSON guarantee stops applying"
+        ],
+        "answer": 0,
+        "explain": "Grammar-constrained decoding guarantees the shape, not the correctness of the values \u2014 and only a subset of JSON Schema is enforced. Defensive parsing stays."
+      }
+    ]
+    </script>
+  </div>
+
+  <div class="callout callout--teacher">
+    <span class="callout__label">Ask your teacher</span>
+    Want to compare forcing one tool (Phase 2) against <code>strict</code> vs <code>output_config.format</code>
+    for the same extraction? Ask &mdash; three roads, one JSON.
+  </div>
+
+  <nav class="lesson-nav">
+    <a href="0017-steering-output.html">&larr; Steering output</a>
+    <a href="0019-context-engineering.html">Next &middot; Context engineering &rarr;</a>
+  </nav>
+
+  <footer class="course-foot">CCDV-F &middot; Lesson 0018 &middot; Reference:
+    <a href="../reference/structured-outputs.html">Structured outputs</a></footer>
+</main>
+<script src="../assets/quiz.js"></script>
+</body>
+</html>

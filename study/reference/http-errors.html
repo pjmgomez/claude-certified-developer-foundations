@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Reference · HTTP &amp; Error Taxonomy</title>
+  <link rel="stylesheet" href="../assets/styles.css">
+</head>
+<body>
+<main class="sheet">
+  <header class="lesson-head">
+    <div class="lesson-kicker">Reference sheet</div>
+    <h1>HTTP &amp; error taxonomy</h1>
+    <p class="lesson-sub">Every status code, its <code>error.type</code>, and whether retrying helps. Print it.</p>
+    <div class="badges">
+      <span class="badge">Domain 2.3 · API Mechanics</span>
+      <span class="badge">Domain 4 · Debugging</span>
+    </div>
+  </header>
+
+  <p>An API error is a JSON body with a stable shape &mdash; branch on <code>error.type</code>, not on the
+  prose in <code>message</code>:</p>
+  <pre><code>{"type": "error",
+ "error": {"type": "rate_limit_error", "message": "..."},
+ "request_id": "req_..."}</code></pre>
+
+  <table>
+    <caption>Status &rarr; type &rarr; what it means &rarr; retry?</caption>
+    <thead>
+      <tr><th>HTTP</th><th><code>error.type</code></th><th>Meaning</th><th>Retry?</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>400</td><td><code>invalid_request_error</code></td><td>Malformed request (also the catch-all for other unlisted 4xx).</td><td class="no">No &mdash; fix it</td></tr>
+      <tr><td>401</td><td><code>authentication_error</code></td><td>Missing / invalid / revoked API key.</td><td class="no">No &mdash; fix key</td></tr>
+      <tr><td>402</td><td><code>billing_error</code></td><td>Out of credits or spend limit reached.</td><td class="no">No &mdash; resolve billing</td></tr>
+      <tr><td>403</td><td><code>permission_error</code></td><td>Key lacks permission for this resource.</td><td class="no">No</td></tr>
+      <tr><td>404</td><td><code>not_found_error</code></td><td>Resource does not exist.</td><td class="no">No</td></tr>
+      <tr><td>413</td><td><code>request_too_large</code></td><td>Payload exceeds the size limit.</td><td class="no">No &mdash; shrink it</td></tr>
+      <tr><td>429</td><td><code>rate_limit_error</code></td><td>RPM / ITPM / OTPM limit hit. Carries a <code>retry-after</code> header.</td><td class="yes">Yes &mdash; back off</td></tr>
+      <tr><td>500</td><td><code>api_error</code></td><td>Internal server error.</td><td class="yes">Yes</td></tr>
+      <tr><td>504</td><td><code>timeout_error</code></td><td>Request timed out. Prefer streaming for long requests.</td><td class="yes">Yes</td></tr>
+      <tr><td>529</td><td><code>overloaded_error</code></td><td>API overloaded across <em>all</em> users &mdash; not just you.</td><td class="yes">Yes</td></tr>
+    </tbody>
+  </table>
+
+  <div class="callout callout--warn">
+    <span class="callout__label">stop_reason is NOT an error</span>
+    A <code>200</code> response can still carry <code>stop_reason</code> of <code>end_turn</code>,
+    <code>max_tokens</code>, <code>tool_use</code>, <code>stop_sequence</code>, or <code>refusal</code>.
+    These are normal model outcomes to <em>handle</em>, not HTTP failures to retry. Confusing the two is
+    the classic integration-vs-model debugging mistake (Domain 4).
+  </div>
+
+  <h2>Retry policy (official SDK)</h2>
+  <ul>
+    <li>Transient failures are retried <strong>twice by default</strong> (<code>DEFAULT_MAX_RETRIES = 2</code>),
+      with exponential backoff (0.5s &times; 2<sup>n</sup>, capped at 8s) plus jitter.</li>
+    <li>The <code>retry-after</code> header is honored when it&rsquo;s a sane value (&le; 60s); otherwise backoff applies.</li>
+    <li><strong>Retryable:</strong> connection errors, 408 / 409 / 429, and 5xx (including 529).
+      <strong>Not retryable without changing the request:</strong> 400 / 401 / 402 / 403 / 404 / 413 / 422.</li>
+    <li>Read <code>anthropic-ratelimit-*</code> response headers for remaining headroom; use idempotency
+      keys / <code>custom_id</code>s so a retry can&rsquo;t double-execute.</li>
+  </ul>
+
+  <div class="callout callout--source">
+    <span class="callout__label">Primary source</span>
+    <a href="https://platform.claude.com/docs/en/api/errors">Errors &mdash; Claude Platform Docs</a>.
+    Verified against the SDK&rsquo;s <code>ErrorType</code> literals and <code>_make_status_error</code> mapping
+    in <a href="https://github.com/anthropics/anthropic-sdk-python">anthropic-sdk-python</a>.
+  </div>
+
+  <footer class="course-foot">
+    CCDV-F reference &middot; used by
+    <a href="../lessons/0005-errors-and-recovery.html">Lesson 0005 &mdash; Errors &amp; recovery</a>.
+  </footer>
+</main>
+</body>
+</html>

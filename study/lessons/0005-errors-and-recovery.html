@@ -1,0 +1,141 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Phase 1 · When calls go wrong</title>
+  <link rel="stylesheet" href="../assets/styles.css">
+</head>
+<body>
+<main>
+  <header class="lesson-head">
+    <div class="lesson-kicker">Phase 1 · Core API Mechanics</div>
+    <h1>When calls go wrong</h1>
+    <p class="lesson-sub">Classify the failure, retry only what&rsquo;s retryable, and never confuse a
+    <code>stop_reason</code> with an error.</p>
+    <div class="badges">
+      <span class="badge">Domain 4 · Debugging &amp; Error Handling</span>
+      <span class="badge">Domain 2.3 · API Mechanics</span>
+    </div>
+  </header>
+
+  <p>Production code lives or dies on how it handles the unhappy path. Two skills matter: telling a
+  <em>transient</em> failure (back off and retry) from a <em>fatal</em> one (fix the request), and telling an
+  HTTP error from a normal-but-notable <code>stop_reason</code>.</p>
+
+  <p><strong>Your win:</strong> catch typed exceptions, read <code>status_code</code> and
+  <code>request_id</code>, and wrap a call in correct backoff &mdash; honoring <code>retry-after</code>.</p>
+
+  <div class="callout callout--source">
+    <span class="callout__label">Read alongside</span>
+    The <a href="../reference/http-errors.html">HTTP &amp; error taxonomy sheet</a> is your map:
+    retryable = <code>429</code> / <code>500</code> / <code>504</code> / <code>529</code> + network;
+    fatal = <code>400</code> / <code>401</code> / <code>402</code> / <code>403</code> / <code>404</code> / <code>413</code>.
+  </div>
+
+  <h2>Do it</h2>
+  <ol class="steps">
+    <li>Catch specific exceptions, most-specific first:
+      <pre><code>import anthropic
+
+client = anthropic.Anthropic()   # retries transient failures twice by default
+
+try:
+    msg = client.messages.create(
+        model="claude-sonnet-5", max_tokens=100,
+        messages=[{"role": "user", "content": "hi"}],
+    )
+except anthropic.RateLimitError as e:          # 429
+    print("rate limited; retry-after:", e.response.headers.get("retry-after"))
+except anthropic.APIStatusError as e:          # any other 4xx / 5xx
+    print("status:", e.status_code, "| request id:", e.request_id)</code></pre></li>
+    <li>Provoke a <em>fatal</em> error on purpose: use a wrong key (<code>401</code>) or a bogus model name
+      (<code>404</code>/<code>400</code>). Confirm it is NOT retried &mdash; retrying can&rsquo;t fix a bad request.</li>
+    <li>Add explicit backoff for the retryable set (the SDK already does this; writing it cements the idea):
+      <pre><code>import time, random
+
+RETRYABLE = (anthropic.RateLimitError,        # 429
+             anthropic.InternalServerError,   # 500 / 504
+             anthropic.OverloadedError,       # 529
+             anthropic.APIConnectionError)    # network
+
+def call_with_backoff(make_call, tries=3):
+    for attempt in range(tries):
+        try:
+            return make_call()
+        except RETRYABLE:
+            if attempt == tries - 1:
+                raise
+            time.sleep(min(8, 0.5 * 2 ** attempt) + random.uniform(0, 0.5))</code></pre></li>
+    <li>Separate model outcomes from failures &mdash; this is a <code>200</code>, not an exception:
+      <pre><code>if msg.stop_reason == "max_tokens":
+    print("truncated — raise max_tokens or continue the turn")</code></pre></li>
+  </ol>
+
+  <div class="callout callout--warn">
+    <span class="callout__label">429 vs 529</span>
+    <code>429 rate_limit_error</code> is <em>your</em> account hitting a limit (honor its
+    <code>retry-after</code>). <code>529 overloaded_error</code> is the API overloaded across
+    <em>everyone</em>. Both are retryable with backoff &mdash; but they mean different things when you read logs.
+  </div>
+
+  <h2>Check yourself</h2>
+  <div class="quiz">
+    <script type="application/json">
+    [
+      {
+        "stem": "Which pair is safe to retry with exponential backoff?",
+        "options": [
+          "429 rate_limit_error and 529 overloaded_error",
+          "400 invalid_request and 401 authentication",
+          "403 permission_error and 404 not_found_error",
+          "413 request_too_large and 400 invalid_request"
+        ],
+        "answer": 0,
+        "explain": "429 and 529 are transient. The 4xx client errors (400/401/402/403/404/413) will fail identically on retry \u2014 fix the request instead."
+      },
+      {
+        "stem": "A response arrives with stop_reason of max_tokens. It is...",
+        "options": [
+          "A normal 200 result you should handle in code",
+          "An error you must immediately retry with backoff",
+          "A 429 in disguise that means back off and wait",
+          "A refusal you should escalate to a bigger model"
+        ],
+        "answer": 0,
+        "explain": "stop_reason values are part of a successful 200. max_tokens just means the answer was truncated \u2014 raise the cap or continue the turn."
+      },
+      {
+        "stem": "By default the official SDK retries transient failures...",
+        "options": [
+          "Twice, honoring any retry-after header present",
+          "Never, so you must add all retry logic yourself",
+          "Five times, with fixed delays and without jitter",
+          "Endlessly, until the request eventually succeeds"
+        ],
+        "answer": 0,
+        "explain": "DEFAULT_MAX_RETRIES is 2, with exponential backoff plus jitter, and it honors a sane retry-after header."
+      }
+    ]
+    </script>
+  </div>
+
+  <div class="callout callout--teacher">
+    <span class="callout__label">Ask your teacher</span>
+    Want to trace a real failure end to end &mdash; matching a <code>request_id</code> from an exception back to
+    the call that caused it? Bring me one and we&rsquo;ll walk it.
+  </div>
+
+  <nav class="lesson-nav">
+    <a href="0004-multimodal-input.html">&larr; Multimodal input</a>
+    <span>Phase 1 complete &middot; Phase 2 (Tools &amp; MCP) up next</span>
+  </nav>
+
+  <footer class="course-foot">
+    CCDV-F &middot; Lesson 0005 &middot; Reference:
+    <a href="../reference/http-errors.html">HTTP &amp; error taxonomy</a>
+  </footer>
+</main>
+<script src="../assets/quiz.js"></script>
+</body>
+</html>

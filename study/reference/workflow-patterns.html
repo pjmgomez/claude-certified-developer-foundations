@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Reference · Workflow patterns</title>
+  <link rel="stylesheet" href="../assets/styles.css">
+</head>
+<body>
+<main class="sheet">
+  <header class="lesson-head">
+    <div class="lesson-kicker">Reference sheet</div>
+    <h1>Workflow patterns</h1>
+    <p class="lesson-sub">The five patterns from &ldquo;Building Effective Agents,&rdquo; plus when an agent earns its keep.</p>
+    <div class="badges"><span class="badge">Domain 1.1 / 1.3 · Architecture &amp; Patterns</span></div>
+  </header>
+
+  <p>The building block under all of it is the <strong>augmented LLM</strong>: a model enhanced with
+  <em>retrieval</em>, <em>tools</em>, and <em>memory</em>.</p>
+
+  <table>
+    <caption>Workflow vs. agent</caption>
+    <thead><tr><th>Workflow</th><th>Agent</th></tr></thead>
+    <tbody>
+      <tr>
+        <td>LLMs + tools orchestrated through <strong>predefined code paths</strong>. Predictable, consistent.</td>
+        <td>The LLM <strong>dynamically directs its own process</strong> and tool use. Flexible, model-driven.</td>
+      </tr>
+      <tr><td>Best for well-defined tasks with known steps.</td><td>Best for open-ended problems where you can&rsquo;t hardcode the path.</td></tr>
+    </tbody>
+  </table>
+
+  <div class="callout callout--warn">
+    <span class="callout__label">The decision rule</span>
+    Find the <strong>simplest solution possible, and only increase complexity when it demonstrably improves
+    outcomes.</strong> Often a single well-tuned LLM call with retrieval and a few examples is enough. Agents
+    trade latency and cost for flexibility &mdash; earn it.
+  </div>
+
+  <table>
+    <caption>The five patterns</caption>
+    <thead><tr><th>Pattern</th><th>What it is</th></tr></thead>
+    <tbody>
+      <tr><td><strong>Prompt chaining</strong></td><td>Decompose into fixed sequential steps; each call uses the prior output. Add programmatic <em>gates</em> between steps. Trades latency for accuracy.</td></tr>
+      <tr><td><strong>Routing</strong></td><td>Classify the input, then send it to a specialized follow-up (easy &rarr; Haiku, hard &rarr; Opus). Separation of concerns.</td></tr>
+      <tr><td><strong>Parallelization</strong></td><td>Two flavours: <em>sectioning</em> (independent subtasks run in parallel) and <em>voting</em> (same task run several times for confidence / diversity).</td></tr>
+      <tr><td><strong>Orchestrator&ndash;workers</strong></td><td>A central LLM <em>dynamically</em> breaks a task into subtasks, delegates to workers, and synthesizes. Unlike parallelization, the subtasks are <strong>not predefined</strong>.</td></tr>
+      <tr><td><strong>Evaluator&ndash;optimizer</strong></td><td>One LLM generates; another evaluates and gives feedback, in a loop. Best when clear eval criteria exist and iteration adds value.</td></tr>
+    </tbody>
+  </table>
+
+  <h2>Three principles for agents</h2>
+  <ol>
+    <li><strong>Simplicity</strong> &mdash; keep the design as simple as the task allows.</li>
+    <li><strong>Transparency</strong> &mdash; show the agent&rsquo;s planning steps.</li>
+    <li><strong>Agent&ndash;Computer Interface (ACI)</strong> &mdash; craft tool documentation and test it as
+      carefully as you craft prompts.</li>
+  </ol>
+
+  <div class="callout callout--source">
+    <span class="callout__label">Primary source</span>
+    <a href="https://www.anthropic.com/engineering/building-effective-agents">Building Effective Agents</a>
+    (Schluntz &amp; Zhang, Anthropic).
+  </div>
+  <footer class="course-foot">CCDV-F reference &middot; used by
+    <a href="../lessons/0021-workflow-vs-agent.html">Lesson 0021</a> and
+    <a href="../lessons/0022-workflow-patterns.html">Lesson 0022</a>.</footer>
+</main>
+</body>
+</html>

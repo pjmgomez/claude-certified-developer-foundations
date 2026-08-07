@@ -1,0 +1,123 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Phase 3 · Thinking &amp; effort</title>
+  <link rel="stylesheet" href="../assets/styles.css">
+</head>
+<body>
+<main>
+  <header class="lesson-head">
+    <div class="lesson-kicker">Phase 3 · Models &amp; Optimization</div>
+    <h1>Thinking &amp; effort</h1>
+    <p class="lesson-sub">Let the model reason when it helps &mdash; and dial how hard it tries.</p>
+    <div class="badges">
+      <span class="badge">Domain 5.1 · LLM Fundamentals</span>
+      <span class="badge">Domain 5.3 · Breaking changes</span>
+    </div>
+  </header>
+
+  <p>Modern Claude can produce <code>thinking</code> content before its answer. Two knobs matter: whether
+  thinking is on (and how it&rsquo;s configured), and <code>effort</code> &mdash; how hard the model works within
+  a single model. Getting the config right is worth real accuracy on hard tasks and real savings on easy ones.</p>
+
+  <p><strong>Your win:</strong> run the same hard prompt with adaptive thinking, read the reasoning, and know
+  which config is deprecated.</p>
+
+  <h2>The configs</h2>
+  <table>
+    <thead><tr><th>Config</th><th>Meaning</th></tr></thead>
+    <tbody>
+      <tr><td><code>{"type": "adaptive"}</code></td><td><strong>Preferred.</strong> The model decides how much to think. <code>display</code> is <code>"summarized"</code> (default) or <code>"omitted"</code> (redacted, keeps a signature).</td></tr>
+      <tr><td><code>{"type": "enabled", "budget_tokens": N}</code></td><td>Classic <em>extended</em> thinking with a fixed budget (&ge;1024, &lt; <code>max_tokens</code>). <strong>Deprecated</strong> on newest models &mdash; migrate to adaptive.</td></tr>
+      <tr><td><code>{"type": "disabled"}</code></td><td>No thinking.</td></tr>
+    </tbody>
+  </table>
+
+  <div class="callout callout--warn">
+    <span class="callout__label">Breaking change to memorise</span>
+    <code>thinking.type: "enabled"</code> + <code>budget_tokens</code> is <strong>deprecated</strong> and being
+    removed on the newest models (it can return HTTP <code>400</code>). The SDK now emits a deprecation warning
+    steering you to <code>adaptive</code>. Migrate to <code>{"type":"adaptive"}</code> + <code>effort</code>.
+  </div>
+
+  <h2>Effort &amp; fast mode</h2>
+  <p><strong>Effort</strong> trades intelligence for latency and cost <em>within one model</em> (levels roughly
+  <code>low</code> &rarr; <code>high</code>; the API/Claude Code default is <code>high</code>). With adaptive
+  thinking, lowering effort replaces most manual chain-of-thought prompting. <strong>Fast mode</strong>
+  (<code>speed: "fast"</code>, select models only, premium price) buys faster output tokens. Confirm the exact
+  surface for <code>effort</code>/<code>speed</code> per model &mdash; they&rsquo;re evolving.</p>
+
+  <h2>Do it</h2>
+  <ol class="steps">
+    <li>Run adaptive thinking on a genuinely hard prompt and inspect the reasoning:
+      <pre><code>resp = client.messages.create(
+    model="claude-sonnet-5", max_tokens=2000,
+    thinking={"type": "adaptive"},
+    messages=[{"role": "user", "content": "Prove that sqrt(2) is irrational."}],
+)
+for b in resp.content:
+    if b.type == "thinking": print("THINK:", b.thinking[:200], "...")
+    elif b.type == "text":   print("ANSWER:", b.text)</code></pre></li>
+    <li>Swap in <code>thinking={"type":"enabled","budget_tokens":1600}</code> and watch for the deprecation
+      warning &mdash; proof the platform is steering you to adaptive.</li>
+  </ol>
+
+  <h2>Check yourself</h2>
+  <div class="quiz">
+    <script type="application/json">
+    [
+      {
+        "stem": "On the newest models, the recommended thinking configuration is...",
+        "options": [
+          "adaptive, replacing enabled plus a fixed budget_tokens",
+          "enabled, with a large budget_tokens near max_tokens set",
+          "disabled, because thinking always slows every response",
+          "summarized, which is its own separate thinking config type"
+        ],
+        "answer": 0,
+        "explain": "adaptive lets the model decide how much to think and is preferred. enabled + budget_tokens is deprecated and can 400 on the newest models."
+      },
+      {
+        "stem": "What does the effort parameter let you do?",
+        "options": [
+          "Trade intelligence for lower latency and cost per call",
+          "Cap the total number of tools the model may call",
+          "Force the model to always emit visible thinking text",
+          "Guarantee identical output across repeated identical calls"
+        ],
+        "answer": 0,
+        "explain": "effort tunes how hard the model works within one model \u2014 a dial between quality and latency/cost. It defaults to high on the API."
+      },
+      {
+        "stem": "Setting thinking display to 'omitted' means...",
+        "options": [
+          "Reasoning is redacted but a signature is kept for continuity",
+          "Thinking is disabled entirely and never runs at all",
+          "The full reasoning is streamed to the end user live",
+          "The answer is omitted and only the thinking is returned"
+        ],
+        "answer": 0,
+        "explain": "omitted redacts the thinking content while returning a signature so multi-turn continuity still works. summarized (the default) returns it normally."
+      }
+    ]
+    </script>
+  </div>
+
+  <div class="callout callout--teacher">
+    <span class="callout__label">Ask your teacher</span>
+    Want the difference between <em>adaptive</em> and <em>extended</em> thinking crisp enough to explain in one
+    sentence? That&rsquo;s an exam-favourite &mdash; ask and we&rsquo;ll nail it.
+  </div>
+
+  <nav class="lesson-nav">
+    <a href="0011-model-selection.html">&larr; Choosing a model</a>
+    <a href="0013-tokens-and-sampling.html">Next &middot; Tokens &amp; sampling &rarr;</a>
+  </nav>
+
+  <footer class="course-foot">CCDV-F &middot; Lesson 0012</footer>
+</main>
+<script src="../assets/quiz.js"></script>
+</body>
+</html>

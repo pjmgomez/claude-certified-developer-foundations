@@ -1,0 +1,123 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Phase 5 · The Claude Agent SDK</title>
+  <link rel="stylesheet" href="../assets/styles.css">
+</head>
+<body>
+<main>
+  <header class="lesson-head">
+    <div class="lesson-kicker">Phase 5 · Agents &amp; Workflows</div>
+    <h1>The Claude Agent SDK</h1>
+    <p class="lesson-sub">The same agent loop that powers Claude Code &mdash; as a library you drive.</p>
+    <div class="badges"><span class="badge">Domain 1.2 · Agent Construction</span></div>
+  </header>
+
+  <p>You could hand-roll the tool-use loop from Phase 2. The <strong>Claude Agent SDK</strong> gives you that
+  loop &mdash; planning, tool calls, context management, deciding when a task is done &mdash; ready-made. Two
+  entry points: <code>query()</code> for one-shot, <code>ClaudeSDKClient</code> for interactive work with your
+  own tools and hooks.</p>
+
+  <p><strong>Your win:</strong> run an agent with <code>query()</code>, then give it a custom in-process tool via
+  <code>ClaudeSDKClient</code>.</p>
+
+  <div class="callout callout--source">
+    <span class="callout__label">Read alongside</span>
+    The <a href="../reference/agent-sdk.html">Agent SDK sheet</a>. Note the rename: it was the Claude Code SDK,
+    and <code>ClaudeCodeOptions</code> is now <code>ClaudeAgentOptions</code>.
+  </div>
+
+  <h2>Do it</h2>
+  <ol class="steps">
+    <li><code>pip install claude-agent-sdk</code> (Python 3.10+), then run a one-shot agent:
+      <pre><code>import anyio
+from claude_agent_sdk import query, ClaudeAgentOptions, AssistantMessage, TextBlock
+
+async def main():
+    options = ClaudeAgentOptions(system_prompt="You are concise.", max_turns=1)
+    async for message in query(prompt="Name three uses for an agent.", options=options):
+        if isinstance(message, AssistantMessage):
+            for block in message.content:
+                if isinstance(block, TextBlock):
+                    print(block.text)
+
+anyio.run(main)</code></pre></li>
+    <li>Give it a custom tool that runs <em>in your process</em>:
+      <pre><code>from claude_agent_sdk import tool, create_sdk_mcp_server, ClaudeAgentOptions, ClaudeSDKClient
+
+@tool("add", "Add two numbers", {"a": float, "b": float})
+async def add(args):
+    return {"content": [{"type": "text", "text": f"Sum: {args['a'] + args['b']}"}]}
+
+server = create_sdk_mcp_server(name="calc", version="1.0.0", tools=[add])
+options = ClaudeAgentOptions(mcp_servers={"calc": server},
+                            allowed_tools=["mcp__calc__add"])
+
+async with ClaudeSDKClient(options=options) as client:
+    await client.query("What is 2 + 3?")
+    async for msg in client.receive_response():
+        print(msg)</code></pre></li>
+    <li>Note the tool name Claude uses: <code>mcp__calc__add</code> &mdash; <code>mcp__&lt;server&gt;__&lt;tool&gt;</code>.
+      Custom tools and hooks require <code>ClaudeSDKClient</code>, not bare <code>query()</code>.</li>
+  </ol>
+
+  <h2>Check yourself</h2>
+  <div class="quiz">
+    <script type="application/json">
+    [
+      {
+        "stem": "Which entry point enables custom tools and hooks?",
+        "options": [
+          "ClaudeSDKClient, the interactive bidirectional client",
+          "query(), the one-shot async iterator function",
+          "create_sdk_mcp_server, used entirely on its own",
+          "ClaudeAgentOptions, which runs the agent by itself"
+        ],
+        "answer": 0,
+        "explain": "query() is the stateless one-shot. Custom tools and hooks require the interactive ClaudeSDKClient."
+      },
+      {
+        "stem": "In the SDK, ClaudeCodeOptions was renamed to...",
+        "options": [
+          "ClaudeAgentOptions, in the SDK rename",
+          "ClaudeSDKOptions, matching the client name",
+          "AgentDefinition, the subagent config type",
+          "QueryOptions, passed only to query()"
+        ],
+        "answer": 0,
+        "explain": "The Claude Code SDK became the Claude Agent SDK, and ClaudeCodeOptions became ClaudeAgentOptions \u2014 a breaking change to remember."
+      },
+      {
+        "stem": "A custom @tool defined with create_sdk_mcp_server runs...",
+        "options": [
+          "In-process, inside your own Python application",
+          "As a separate subprocess over the stdio transport",
+          "On Anthropic's servers, like a built-in server tool",
+          "Only inside Claude Code, never from the SDK"
+        ],
+        "answer": 0,
+        "explain": "SDK MCP tools run in-process \u2014 no IPC overhead, direct access to your app state. That's the point of create_sdk_mcp_server."
+      }
+    ]
+    </script>
+  </div>
+
+  <div class="callout callout--teacher">
+    <span class="callout__label">Ask your teacher</span>
+    Want to see the SDK loop map back onto the raw tool-use loop from Lesson 0006? Ask &mdash; seeing both makes
+    the abstraction honest.
+  </div>
+
+  <nav class="lesson-nav">
+    <a href="0022-workflow-patterns.html">&larr; The five patterns</a>
+    <a href="0024-subagents-and-hooks.html">Next &middot; Subagents &amp; hooks &rarr;</a>
+  </nav>
+
+  <footer class="course-foot">CCDV-F &middot; Lesson 0023 &middot; Reference:
+    <a href="../reference/agent-sdk.html">Claude Agent SDK</a></footer>
+</main>
+<script src="../assets/quiz.js"></script>
+</body>
+</html>

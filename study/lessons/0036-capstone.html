@@ -1,0 +1,107 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Phase 8 · Capstone</title>
+  <link rel="stylesheet" href="../assets/styles.css">
+</head>
+<body>
+<main>
+  <header class="lesson-head">
+    <div class="lesson-kicker">Phase 8 · Capstone &amp; Readiness</div>
+    <h1>Capstone: build &amp; operate one app</h1>
+    <p class="lesson-sub">The exam guide&rsquo;s own advice &mdash; build and run a real Claude application.</p>
+    <div class="badges">
+      <span class="badge">Domains 2 · 4 · 6 · 7 · 8</span>
+      <span class="badge badge--weight">Ties the whole course together</span>
+    </div>
+  </header>
+
+  <p>Everything so far has been one concept at a time. The capstone fuses them into a single working app &mdash;
+  a support-triage assistant that caches, calls a guarded tool, produces structured output, streams a reply, and
+  reports its own token cost. If you can build and explain this, you can pass.</p>
+
+  <p><strong>Your win:</strong> run <a href="../capstone/capstone.py">capstone.py</a>, watch a cache hit on the
+  rerun, and defeat an injection attempt against the tool guard.</p>
+
+  <h2>What it exercises</h2>
+  <table>
+    <thead><tr><th>Course concept</th><th>Where it appears</th></tr></thead>
+    <tbody>
+      <tr><td>Prompt caching (Phase 3)</td><td><code>cache_control</code> on the big system policy block.</td></tr>
+      <tr><td>Tool-use loop (Phase 2)</td><td><code>lookup_order</code> tool, <code>stop_reason: tool_use</code>, matched <code>tool_result</code>s.</td></tr>
+      <tr><td>Guardrail (Phase 7)</td><td><code>guard_tool_call()</code> &mdash; a PreToolUse-style deny before executing.</td></tr>
+      <tr><td>Structured output (Phase 4)</td><td>A forced <code>triage_summary</code> tool with enum&rsquo;d fields.</td></tr>
+      <tr><td>Streaming (Phase 1)</td><td>The customer reply streamed via <code>messages.stream</code>.</td></tr>
+      <tr><td>Evaluation (Phase 5.4)</td><td><code>usage</code> printed &mdash; input/output/cache-read tokens.</td></tr>
+    </tbody>
+  </table>
+
+  <h2>Do it</h2>
+  <ol class="steps">
+    <li><strong>Run it.</strong> With your key set: <code>python study/capstone/capstone.py</code>. Confirm you
+      get a structured summary, a usage line, and a streamed reply.</li>
+    <li><strong>Prove the cache.</strong> Run it again within ~5 minutes and watch <code>cache_read</code> jump
+      from 0 to the size of the policy block &mdash; the Phase 3 lesson, live.</li>
+    <li><strong>Attack the guard.</strong> Change the opening message to ask about order
+      <code>ORD-../../etc/passwd</code>. Confirm <code>guard_tool_call()</code> denies it before it executes &mdash;
+      the Phase 7 lesson, live.</li>
+    <li><strong>Extend it (optional).</strong> Swap the forced-tool summary for <code>output_config.format</code>;
+      move the guard into a real Agent SDK <code>PreToolUse</code> hook; add a Haiku pre-screen on the inbound message.</li>
+  </ol>
+
+  <div class="callout callout--warn">
+    <span class="callout__label">This is the readiness bar</span>
+    The exam guide literally recommends building &ldquo;at least one Claude application that exercises the API,
+    integrates one or more tools, applies basic prompt and context engineering, and includes simple security and
+    evaluation practices.&rdquo; This capstone is that app. Operating it &mdash; not just reading it &mdash; is the goal.
+  </div>
+
+  <h2>Check yourself</h2>
+  <div class="quiz">
+    <script type="application/json">
+    [
+      {
+        "stem": "In the capstone, what proves prompt caching is working?",
+        "options": [
+          "cache_read_input_tokens jumps on the second run within the TTL",
+          "output_tokens drops to zero once the cache is warmed",
+          "The tool loop stops needing a tool_result block",
+          "stream events stop arriving after the first call"
+        ],
+        "answer": 0,
+        "explain": "On a rerun within the TTL, the cached policy block is served from cache \u2014 cache_read_input_tokens rises from 0 to the block's size."
+      },
+      {
+        "stem": "The capstone's guard_tool_call() is the plain-API analog of...",
+        "options": [
+          "A PreToolUse hook that denies a call before it executes",
+          "A PostToolUse hook that reformats the tool's output",
+          "A structured-output schema enforced on the response",
+          "A routing workflow that picks a cheaper model tier"
+        ],
+        "answer": 0,
+        "explain": "Checking and denying a tool call before running it mirrors a PreToolUse hook \u2014 the deterministic guardrail layer from Phase 7."
+      }
+    ]
+    </script>
+  </div>
+
+  <div class="callout callout--teacher">
+    <span class="callout__label">Ask your teacher</span>
+    Once it runs, bring me the <code>usage</code> output and we&rsquo;ll reason about its cost &mdash; then pick
+    one extension to build together.
+  </div>
+
+  <nav class="lesson-nav">
+    <a href="0035-secrets-and-keys.html">&larr; Secrets &amp; keys</a>
+    <a href="0037-exam-readiness.html">Next &middot; Exam readiness &rarr;</a>
+  </nav>
+
+  <footer class="course-foot">CCDV-F &middot; Lesson 0036 &middot; Code:
+    <a href="../capstone/capstone.py">capstone.py</a></footer>
+</main>
+<script src="../assets/quiz.js"></script>
+</body>
+</html>

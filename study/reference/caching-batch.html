@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Reference · Caching &amp; batch</title>
+  <link rel="stylesheet" href="../assets/styles.css">
+</head>
+<body>
+<main class="sheet">
+  <header class="lesson-head">
+    <div class="lesson-kicker">Reference sheet</div>
+    <h1>Cost levers: caching &amp; batch</h1>
+    <p class="lesson-sub">Two big discounts &mdash; a warm prefix, and latency-tolerant bulk.</p>
+    <div class="badges"><span class="badge">Domain 5.4 · Cost &amp; Token Management</span></div>
+  </header>
+
+  <h2>Prompt caching</h2>
+  <p>Mark a stable prefix (system prompt, tools, long context) with a <code>cache_control</code> breakpoint.
+  Reuse within the TTL and you pay a fraction to re-read it.</p>
+  <pre><code>system=[{"type": "text", "text": BIG_STABLE_PROMPT,
+         "cache_control": {"type": "ephemeral"}}]        # ttl defaults to "5m"; or "1h"</code></pre>
+
+  <table>
+    <caption>Multipliers vs. the base input price <span style="opacity:.6">(PROVISIONAL &mdash; verify)</span></caption>
+    <thead><tr><th>Event</th><th>Cost</th></tr></thead>
+    <tbody>
+      <tr><td>Cache <strong>read</strong> (hit)</td><td class="yes">0.1&times; &mdash; 10% of base input</td></tr>
+      <tr><td>Cache <strong>write</strong>, 5-minute TTL</td><td>1.25&times; base</td></tr>
+      <tr><td>Cache <strong>write</strong>, 1-hour TTL</td><td>2&times; base</td></tr>
+    </tbody>
+  </table>
+  <p>It pays off after <strong>one</strong> read (5-minute) or <strong>two</strong> reads (1-hour). Default TTL
+  is 5 minutes. <code>max_tokens: 0</code> pre-warms the cache without generating.</p>
+
+  <p><strong>Cache check-pointing</strong> = where you place breakpoints. <em>Automatic</em>: a top-level
+  <code>cache_control</code> marks the last cacheable block and moves forward as the conversation grows.
+  <em>Explicit</em>: put <code>cache_control</code> on specific blocks. Longer-TTL entries must precede shorter ones.</p>
+
+  <p><strong>Read it back in <code>usage</code>:</strong></p>
+  <pre><code>usage.input_tokens                 # uncached input
+usage.cache_creation_input_tokens  # tokens written to cache (billed at write rate)
+usage.cache_read_input_tokens      # tokens served from cache (billed at 0.1x)
+usage.cache_creation.ephemeral_5m_input_tokens / ephemeral_1h_input_tokens
+# total input = input_tokens + cache_creation_input_tokens + cache_read_input_tokens</code></pre>
+
+  <h2>Message Batches API</h2>
+  <pre><code>batch = client.messages.batches.create(requests=[
+    {"custom_id": "doc-1",
+     "params": {"model": "claude-haiku-4-5", "max_tokens": 200,
+                "messages": [{"role": "user", "content": "Classify: ..."}]}},
+])</code></pre>
+  <ul>
+    <li><strong>50% off</strong> input and output.</li>
+    <li>Up to <strong>100,000 requests or 256 MB</strong>, whichever comes first.</li>
+    <li>Asynchronous; most finish within 1 hour, and <strong>batches expire if not done within 24 hours</strong>.
+      Results are retrievable for <strong>29 days</strong>. Scoped to a Workspace.</li>
+    <li>Each request carries a <code>custom_id</code> to match its result. No streaming, no interactive tool loops.</li>
+  </ul>
+
+  <div class="callout callout--warn">
+    <span class="callout__label">Realtime vs batch</span>
+    Anything user-facing &rarr; realtime (sync / streaming). Offline evals, bulk classification, dataset
+    labelling &mdash; anything tolerant of up to 24h &rarr; batch, at half price.
+  </div>
+
+  <div class="callout callout--source">
+    <span class="callout__label">Primary source</span>
+    <a href="https://platform.claude.com/docs/en/build-with-claude/prompt-caching">Prompt caching</a> &middot;
+    <a href="https://platform.claude.com/docs/en/build-with-claude/batch-processing">Batch processing</a>.
+    Shapes verified against <a href="https://github.com/anthropics/anthropic-sdk-python">anthropic-sdk-python</a>
+    (<code>CacheControlEphemeralParam</code>, <code>usage.cache_*</code>, <code>batches.create</code>).
+  </div>
+  <footer class="course-foot">CCDV-F reference &middot; used by
+    <a href="../lessons/0014-prompt-caching.html">Lesson 0014</a> and
+    <a href="../lessons/0015-batch-api.html">Lesson 0015</a>.</footer>
+</main>
+</body>
+</html>

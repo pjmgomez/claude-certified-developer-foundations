@@ -1,0 +1,136 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Phase 2 · The tool-use loop</title>
+  <link rel="stylesheet" href="../assets/styles.css">
+</head>
+<body>
+<main>
+  <header class="lesson-head">
+    <div class="lesson-kicker">Phase 2 · Tools &amp; MCP</div>
+    <h1>The tool-use loop</h1>
+    <p class="lesson-sub">Let Claude call your code, hand back the result, and continue &mdash; the heartbeat of every agent.</p>
+    <div class="badges">
+      <span class="badge">Domain 8.1 · Tool Implementation</span>
+      <span class="badge badge--weight">Domain 8 = 10.6%</span>
+    </div>
+  </header>
+
+  <p>A tool is a function you describe to Claude. When Claude decides to use one, it doesn&rsquo;t run
+  anything &mdash; it <em>asks you to</em>, by returning a <code>tool_use</code> block. You execute the
+  function and return a <code>tool_result</code>. Loop until Claude is done. That is the entire mechanism
+  behind agents.</p>
+
+  <p><strong>Your win:</strong> a working loop where Claude calls a <code>get_weather</code> tool, you feed
+  the result back, and it answers in natural language.</p>
+
+  <div class="callout callout--warn">
+    <span class="callout__label">The four beats</span>
+    1) You send <code>tools</code>. 2) Claude replies with <code>stop_reason: "tool_use"</code> and one or
+    more <code>tool_use</code> blocks. 3) You run each and return <code>tool_result</code> blocks (matched by
+    <code>tool_use_id</code>). 4) Claude uses them to answer &mdash; or asks for another tool.
+  </div>
+
+  <h2>Do it</h2>
+  <ol class="steps">
+    <li>Define a tool and its implementation:
+      <pre><code>import anthropic
+
+client = anthropic.Anthropic()
+MODEL = "claude-sonnet-5"
+
+tools = [{
+    "name": "get_weather",
+    "description": "Get the current weather for a city. Returns a short text summary.",
+    "input_schema": {
+        "type": "object",
+        "properties": {"city": {"type": "string", "description": "City name, e.g. 'Paris'"}},
+        "required": ["city"],
+    },
+}]
+
+def get_weather(city):                 # your real logic would call an API
+    return f"It is 21C and sunny in {city}."</code></pre></li>
+    <li>Run the loop &mdash; keep going while Claude wants a tool:
+      <pre><code>messages = [{"role": "user", "content": "What's the weather in Paris?"}]
+resp = client.messages.create(model=MODEL, max_tokens=400, tools=tools, messages=messages)
+
+while resp.stop_reason == "tool_use":
+    messages.append({"role": "assistant", "content": resp.content})   # replay Claude's turn
+    results = []
+    for block in resp.content:
+        if block.type == "tool_use":
+            out = get_weather(**block.input)          # execute
+            results.append({
+                "type": "tool_result",
+                "tool_use_id": block.id,              # must match the call
+                "content": out,
+            })
+    messages.append({"role": "user", "content": results})             # hand results back
+    resp = client.messages.create(model=MODEL, max_tokens=400, tools=tools, messages=messages)
+
+print(resp.content[0].text)</code></pre></li>
+    <li>Make the tool raise, and return <code>{"type":"tool_result","tool_use_id":...,"content":"error text","is_error": True}</code>.
+      Watch Claude recover gracefully instead of crashing.</li>
+  </ol>
+
+  <h2>Check yourself</h2>
+  <div class="quiz">
+    <script type="application/json">
+    [
+      {
+        "stem": "Claude wants to use a tool. What does the response look like?",
+        "options": [
+          "stop_reason is tool_use, with tool_use blocks in content",
+          "stop_reason is end_turn, with the answer already inside",
+          "an HTTP 409 error telling you a tool must be run now",
+          "an empty content list and a tool_choice of type any"
+        ],
+        "answer": 0,
+        "explain": "A tool request is a normal 200 with stop_reason tool_use and one or more tool_use blocks. Nothing has executed yet \u2014 that is your job."
+      },
+      {
+        "stem": "How do you return a tool's output to Claude?",
+        "options": [
+          "As a user turn of tool_result blocks in a new message",
+          "As a system prompt string appended after the call",
+          "As an assistant turn containing plain text output",
+          "As a tools argument passed on the very next call"
+        ],
+        "answer": 0,
+        "explain": "Results go back as tool_result blocks inside a user-role message, right after replaying Claude's assistant turn."
+      },
+      {
+        "stem": "What links a tool_result to the request that asked for it?",
+        "options": [
+          "The tool_use_id, copied from the tool_use block",
+          "The tool's name, repeated on the result block",
+          "The array index of the block in the content list",
+          "A fresh uuid you generate for each result block"
+        ],
+        "answer": 0,
+        "explain": "Each tool_result carries the tool_use_id of the call it answers. That pairing is how parallel calls stay unambiguous."
+      }
+    ]
+    </script>
+  </div>
+
+  <div class="callout callout--teacher">
+    <span class="callout__label">Ask your teacher</span>
+    Want to reconstruct <code>tool_use</code> arguments from a <em>stream</em> (the
+    <code>input_json_delta</code> pieces from Phase 1)? Ask &mdash; it&rsquo;s a great bridge exercise.
+  </div>
+
+  <nav class="lesson-nav">
+    <a href="0005-errors-and-recovery.html">&larr; Errors &amp; recovery</a>
+    <a href="0007-directing-tools.html">Next &middot; Directing tools &rarr;</a>
+  </nav>
+
+  <footer class="course-foot">CCDV-F &middot; Lesson 0006 &middot; Reference:
+    <a href="../reference/tool-choice.html">tool_choice &amp; tool types</a></footer>
+</main>
+<script src="../assets/quiz.js"></script>
+</body>
+</html>

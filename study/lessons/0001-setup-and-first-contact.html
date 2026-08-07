@@ -1,0 +1,149 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Phase 0 · Your first words with Claude</title>
+  <link rel="stylesheet" href="../assets/styles.css">
+</head>
+<body>
+<main>
+  <header class="lesson-head">
+    <div class="lesson-kicker">Phase 0 · Setup &amp; First Contact</div>
+    <h1>Your first words with Claude</h1>
+    <p class="lesson-sub">Get the environment working and make one real API call &mdash; then read exactly what it cost.</p>
+    <div class="badges">
+      <span class="badge">Domain 2.3 · API Mechanics</span>
+      <span class="badge">Domain 7.4 · Secrets &amp; Keys</span>
+      <span class="badge badge--weight">Foundation for everything</span>
+    </div>
+  </header>
+
+  <p>You already write software; what is new is the <em>shape</em> of a Claude program. Almost
+  everything in this course &mdash; streaming, tools, agents, caching &mdash; is a variation on the
+  loop you are about to run: send <code>messages</code>, get a <code>Message</code> back, inspect it.
+  Nail this once and the rest is elaboration.</p>
+
+  <p><strong>Your win for this lesson:</strong> a live reply from Claude in your terminal, plus the
+  token counts that every cost decision later in the course is built on.</p>
+
+  <div class="callout callout--source">
+    <span class="callout__label">Primary source</span>
+    Read the <a href="https://platform.claude.com/docs/en/get-started">Get started</a> guide and skim
+    the <a href="https://github.com/anthropics/anthropic-sdk-python">anthropic-sdk-python</a> README.
+    The code below was checked against that SDK &mdash; but confirm it yourself; that habit is the point.
+  </div>
+
+  <h2>Do it</h2>
+  <ol class="steps">
+    <li><strong>Create an API key.</strong> Sign in at the
+      <a href="https://platform.claude.com">Claude Platform Console</a>, open <em>API keys</em>, and
+      create one. Copy it now &mdash; the full key is shown only once.</li>
+    <li><strong>Put the key in your environment</strong>, never in code:
+      <pre><code>export ANTHROPIC_API_KEY="sk-ant-..."</code></pre>
+      Add it to your shell profile or a <code>.env</code> file you keep out of git.</li>
+    <li><strong>Install the SDK</strong> in a fresh virtual environment:
+      <pre><code>python -m venv .venv &amp;&amp; source .venv/bin/activate
+pip install anthropic</code></pre></li>
+    <li><strong>Write <code>hello.py</code>:</strong>
+      <pre><code>import anthropic
+
+client = anthropic.Anthropic()  # reads ANTHROPIC_API_KEY from the environment
+
+message = client.messages.create(
+    model="claude-sonnet-5",     # verify current IDs at platform.claude.com/docs
+    max_tokens=200,
+    messages=[
+        {"role": "user", "content": "In one sentence, what is the Claude Messages API?"},
+    ],
+)
+
+print(message.content[0].text)          # the reply is a list of content blocks
+print("stop_reason:", message.stop_reason)
+print("input tokens:", message.usage.input_tokens)
+print("output tokens:", message.usage.output_tokens)</code></pre></li>
+    <li><strong>Run it:</strong> <code>python hello.py</code>. You should see a one-sentence answer,
+      <code>stop_reason: end_turn</code>, and two token counts.</li>
+    <li><strong>Poke it.</strong> Ask for a <em>paragraph</em> instead of a sentence and rerun. Watch
+      <code>output_tokens</code> climb while <code>input_tokens</code> barely moves. That asymmetry is
+      why output is the expensive side of the bill.</li>
+  </ol>
+
+  <div class="callout callout--warn">
+    <span class="callout__label">Verify, don&rsquo;t trust</span>
+    Model IDs and prices <em>drift</em>. <code>claude-sonnet-5</code> and <code>claude-haiku-4-5</code>
+    appear in current official examples, but always confirm the live ID on the
+    <a href="https://platform.claude.com/docs/en/about-claude/models/overview">models page</a> before
+    shipping. Treating any identifier or price as provisional-until-checked is a durable exam skill.
+  </div>
+
+  <div class="callout callout--lab">
+    <span class="callout__label">Security &mdash; treat this as reflex</span>
+    The key is a bearer credential: anyone holding it can spend your money. Keep it in an environment
+    variable or secrets manager, never in source or a committed file. Rotate it if it leaks. A bad or
+    revoked key is how you earn a <code>401 authentication_error</code> &mdash; we cover that taxonomy in Phase&nbsp;1.
+  </div>
+
+  <h2>Check yourself</h2>
+  <p>Answer from memory before you scroll back &mdash; retrieval is what makes it stick.</p>
+  <div class="quiz">
+    <script type="application/json">
+    [
+      {
+        "stem": "You wrote anthropic.Anthropic() with no arguments. Where does it get your API key?",
+        "options": [
+          "From the ANTHROPIC_API_KEY environment variable",
+          "From a key hard-coded inside the SDK package",
+          "From your operating-system login credentials",
+          "From the model argument you passed to create"
+        ],
+        "answer": 0,
+        "explain": "The client reads ANTHROPIC_API_KEY from the environment by default \u2014 which is precisely why the key never appears in your code."
+      },
+      {
+        "stem": "After a successful call, where do the token counts live on the response?",
+        "options": [
+          "On message.usage: input_tokens and output_tokens",
+          "On message.tokens: prompt_size and reply_size",
+          "On message.content, inside the first text block",
+          "On message.billing: spent_input and spent_output"
+        ],
+        "answer": 0,
+        "explain": "Every response carries a usage object with input_tokens and output_tokens \u2014 your ground truth for cost, and the thing every caching and batching decision later measures against."
+      },
+      {
+        "stem": "Where should your Anthropic API key actually live?",
+        "options": [
+          "In an environment variable or a secrets manager",
+          "In a constant near the top of your main script",
+          "In a committed .env file kept in the repository",
+          "In a code comment beside the client construction"
+        ],
+        "answer": 0,
+        "explain": "Keys belong in the environment or a secrets manager, never in code or version control. A leaked key is a 401 waiting to happen \u2014 and must be rotated immediately."
+      }
+    ]
+    </script>
+  </div>
+
+  <div class="callout callout--teacher">
+    <span class="callout__label">I&rsquo;m your teacher</span>
+    Stuck on the key, the install, or a stack trace? Ask me. If the reply surprised you, paste it back
+    and we&rsquo;ll dig into why. When your call works and the quiz feels easy, say so and we&rsquo;ll
+    start Phase&nbsp;1.
+  </div>
+
+  <nav class="lesson-nav">
+    <a href="../NOTES.md">&larr; Roadmap</a>
+    <span>Next &middot; Phase 1 &mdash; Core API mechanics (up next)</span>
+  </nav>
+
+  <footer class="course-foot">
+    CCDV-F durable-competence track &middot; Lesson 0001 &middot; See
+    <a href="../RESOURCES.md">RESOURCES.md</a> for sources and
+    <a href="../MISSION.md">MISSION.md</a> for why we&rsquo;re here.
+  </footer>
+</main>
+<script src="../assets/quiz.js"></script>
+</body>
+</html>

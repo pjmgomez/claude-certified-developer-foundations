@@ -1,0 +1,111 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Phase 6 · The CLAUDE.md hierarchy</title>
+  <link rel="stylesheet" href="../assets/styles.css">
+</head>
+<body>
+<main>
+  <header class="lesson-head">
+    <div class="lesson-kicker">Phase 6 · Claude Code</div>
+    <h1>The CLAUDE.md hierarchy</h1>
+    <p class="lesson-sub">How Claude Code assembles its project memory &mdash; and why order and size matter.</p>
+    <div class="badges">
+      <span class="badge">Domain 3 · Claude Code Operation</span>
+      <span class="badge">Domain 2.6 · Configuration</span>
+    </div>
+  </header>
+
+  <p><code>CLAUDE.md</code> is the memory <em>you</em> write for Claude Code &mdash; build commands, conventions,
+  gotchas. Several files at different scopes are loaded and <strong>concatenated</strong> at launch, so knowing
+  the order (and keeping each file small) directly shapes how Claude behaves.</p>
+
+  <p><strong>Your win:</strong> generate a CLAUDE.md with <code>/init</code>, trim it under 200 lines, and pull in
+  a shared doc with an <code>@import</code>.</p>
+
+  <div class="callout callout--source">
+    <span class="callout__label">Read alongside</span>
+    The <a href="../reference/claude-code-files.html">Claude Code files sheet</a>: managed &rarr; user &rarr;
+    project &rarr; local, concatenated, not overriding.
+  </div>
+
+  <h2>Do it</h2>
+  <ol class="steps">
+    <li>In a real repo, run <code>/init</code>. Claude analyses the codebase and writes a starter
+      <code>CLAUDE.md</code> (build/test commands, conventions). If one exists, it suggests improvements rather
+      than clobbering it.</li>
+    <li>Trim it toward <strong>under 200 lines</strong>. A bloated CLAUDE.md burns context every turn and dilutes
+      attention &mdash; keep it high-signal.</li>
+    <li>Factor shared guidance into a separate file and pull it in:
+      <pre><code># CLAUDE.md
+@docs/conventions.md      # imported inline (max depth 4 hops)</code></pre></li>
+    <li>Add a subdirectory <code>CLAUDE.md</code> (e.g. <code>packages/api/CLAUDE.md</code>). Confirm it loads
+      <em>on demand</em> when you work in that folder &mdash; not at launch like the top-level files.</li>
+  </ol>
+
+  <div class="callout callout--warn">
+    <span class="callout__label">Concatenated, not overriding</span>
+    Managed, user, project, and local files all <em>add up</em> &mdash; a later tier doesn&rsquo;t replace an
+    earlier one. Put personal, uncommitted notes in <code>CLAUDE.local.md</code> (gitignored); put team-shared
+    rules in the project file.
+  </div>
+
+  <h2>Check yourself</h2>
+  <div class="quiz">
+    <script type="application/json">
+    [
+      {
+        "stem": "How do the CLAUDE.md tiers combine?",
+        "options": [
+          "Concatenated broad-to-specific; later tiers add, not override",
+          "The most specific file fully replaces all the others",
+          "Only the project CLAUDE.md is ever read at launch",
+          "They are merged alphabetically by their file path"
+        ],
+        "answer": 0,
+        "explain": "Managed, user, project, and local files are concatenated. Later tiers add to earlier ones rather than overriding them."
+      },
+      {
+        "stem": "A CLAUDE.md in a subdirectory loads...",
+        "options": [
+          "On demand, when you work with files in that directory",
+          "In full at launch, exactly like the top-level file",
+          "Never; only the repo-root CLAUDE.md is ever loaded",
+          "Only if you import it explicitly with an @ reference"
+        ],
+        "answer": 0,
+        "explain": "Files at or above cwd load in full at launch; subdirectory files load on demand when you're working in them."
+      },
+      {
+        "stem": "What does /init do when a CLAUDE.md already exists?",
+        "options": [
+          "Suggests improvements instead of overwriting it",
+          "Silently overwrites it with a fresh generated file",
+          "Refuses to run until you delete the existing file",
+          "Appends a duplicate copy to the end of the file"
+        ],
+        "answer": 0,
+        "explain": "/init analyzes the codebase to generate a starter, but when a CLAUDE.md exists it proposes improvements rather than clobbering your work."
+      }
+    ]
+    </script>
+  </div>
+
+  <div class="callout callout--teacher">
+    <span class="callout__label">Ask your teacher</span>
+    Want feedback on a real CLAUDE.md? Paste it and we&rsquo;ll prune it to high-signal lines together.
+  </div>
+
+  <nav class="lesson-nav">
+    <a href="0025-agent-frameworks.html">&larr; Frameworks</a>
+    <a href="0027-rules-skills-commands.html">Next &middot; Rules, Skills &amp; Commands &rarr;</a>
+  </nav>
+
+  <footer class="course-foot">CCDV-F &middot; Lesson 0026 &middot; Reference:
+    <a href="../reference/claude-code-files.html">Claude Code files</a></footer>
+</main>
+<script src="../assets/quiz.js"></script>
+</body>
+</html>

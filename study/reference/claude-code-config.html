@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Reference · Claude Code config</title>
+  <link rel="stylesheet" href="../assets/styles.css">
+</head>
+<body>
+<main class="sheet">
+  <header class="lesson-head">
+    <div class="lesson-kicker">Reference sheet</div>
+    <h1>Claude Code config &amp; modes</h1>
+    <p class="lesson-sub">settings.json layers, model pinning, and the automation modes.</p>
+    <div class="badges">
+      <span class="badge">Domain 2.6 · Configuration</span>
+      <span class="badge">Domain 3 · Claude Code</span>
+    </div>
+  </header>
+
+  <h2>settings.json layers</h2>
+  <table>
+    <thead><tr><th>Scope</th><th>File</th></tr></thead>
+    <tbody>
+      <tr><td>Enterprise managed policy</td><td>managed settings (highest precedence)</td></tr>
+      <tr><td>User</td><td><code>~/.claude/settings.json</code></td></tr>
+      <tr><td>Project (shared)</td><td><code>.claude/settings.json</code></td></tr>
+      <tr><td>Project (local, gitignored)</td><td><code>.claude/settings.local.json</code></td></tr>
+    </tbody>
+  </table>
+
+  <h2>Model version pinning</h2>
+  <table>
+    <thead><tr><th>Form</th><th>Meaning</th></tr></thead>
+    <tbody>
+      <tr><td><code>claude-sonnet-4-5</code> (alias)</td><td>Latest-snapshot pointer &mdash; <strong>pre-4.6 only</strong>.</td></tr>
+      <tr><td><code>claude-sonnet-4-5-20250929</code></td><td>Fixed dated snapshot.</td></tr>
+      <tr><td><code>claude-opus-5</code> (dateless)</td><td><strong>Since 4.6: a pinned snapshot</strong>, not evergreen.</td></tr>
+    </tbody>
+  </table>
+  <p>Pin explicit versions in production; re-test on every upgrade. Changing <code>tool_choice</code>, thinking
+  config, or <code>budget_tokens</code> invalidates prompt-cache breakpoints &mdash; version prompts alongside code.</p>
+
+  <h2>Modes &amp; sessions</h2>
+  <ul>
+    <li><strong>Headless</strong> <code>-p "prompt"</code> &mdash; no TTY; reuses settings/hooks/permissions.
+      Powers CI, cron, pre-commit, GitHub Actions. <code>PermissionRequest</code> hooks do <em>not</em> fire here;
+      a <code>permissionDecision: "defer"</code> pauses a call for a wrapping process.</li>
+    <li><strong>Streaming</strong> <code>--output-format stream-json</code>.</li>
+    <li><strong>Resume</strong> <code>--continue</code> / <code>--resume</code>.</li>
+  </ul>
+
+  <h2>Built-in slash commands</h2>
+  <p><code>/clear</code>, <code>/compact</code>, <code>/model</code>, <code>/cost</code>, <code>/context</code>,
+  <code>/memory</code>, <code>/init</code>, <code>/doctor</code>, <code>/hooks</code>, <code>/permissions</code>.
+  Custom / skill-backed commands take <code>$ARGUMENTS</code> (or <code>$1</code>, <code>$ARGUMENTS[N]</code>).</p>
+
+  <div class="callout callout--warn">
+    <span class="callout__label">Plugins</span>
+    A plugin is a self-contained <code>.claude-plugin/plugin.json</code> directory bundling skills, agents, hooks,
+    and MCP servers &mdash; the unit for sharing a whole configuration.
+  </div>
+
+  <div class="callout callout--source">
+    <span class="callout__label">Primary source</span>
+    <a href="https://code.claude.com/docs/en/settings">settings</a> ·
+    <a href="https://platform.claude.com/docs/en/about-claude/models/model-ids-and-versions">model IDs &amp; versions</a>.
+    Verify volatile paths / flags before relying on them.
+  </div>
+  <footer class="course-foot">CCDV-F reference &middot; used by
+    <a href="../lessons/0028-agents-and-memory.html">Lesson 0028</a> and
+    <a href="../lessons/0029-configuration-management.html">0029</a>.</footer>
+</main>
+</body>
+</html>

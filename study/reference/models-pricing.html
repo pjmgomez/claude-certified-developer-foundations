@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Reference · Models &amp; pricing</title>
+  <link rel="stylesheet" href="../assets/styles.css">
+</head>
+<body>
+<main class="sheet">
+  <header class="lesson-head">
+    <div class="lesson-kicker">Reference sheet</div>
+    <h1>Models &amp; pricing</h1>
+    <p class="lesson-sub">The lineup, the tradeoffs, and how versioning bites you in production.</p>
+    <div class="badges"><span class="badge">Domain 5.3 · Model Selection</span></div>
+  </header>
+
+  <div class="callout callout--warn">
+    <span class="callout__label">Everything below is PROVISIONAL</span>
+    Prices, context sizes, and even which models exist change often, and this environment can&rsquo;t reach
+    the live pages. Treat these as a shape to reason with, and confirm on the
+    <a href="https://platform.claude.com/docs/en/about-claude/models/overview">models</a> and
+    <a href="https://platform.claude.com/docs/en/about-claude/pricing">pricing</a> pages before you ship.
+  </div>
+
+  <table>
+    <caption>Current-generation lineup (per-MTok, standard rates)</caption>
+    <thead><tr><th>Model</th><th>Input / Output</th><th>Context / Max out</th><th>Reach for it when&hellip;</th></tr></thead>
+    <tbody>
+      <tr><td><strong>Fable 5</strong><br><code>claude-fable-5</code></td><td>$10 / $50</td><td>1M / 128K</td><td>You need the most capable widely-available model; adaptive thinking always on.</td></tr>
+      <tr><td><strong>Opus 5</strong><br><code>claude-opus-5</code></td><td>$5 / $25</td><td>1M / 128K</td><td>Hardest reasoning &amp; agentic coding. The default for complex work.</td></tr>
+      <tr><td><strong>Sonnet 5</strong><br><code>claude-sonnet-5</code></td><td>$3 / $15 <small>(intro $2/$10)</small></td><td>1M / 128K</td><td>The balanced workhorse: strong coding + tool use, fast enough to be interactive.</td></tr>
+      <tr><td><strong>Haiku 4.5</strong><br><code>claude-haiku-4-5</code></td><td>$1 / $5</td><td>200K / 64K</td><td>Classification, routing, high-volume / low-latency. Cheapest and fastest.</td></tr>
+    </tbody>
+  </table>
+
+  <p>Output is priced roughly 5&times; input &mdash; the asymmetry that makes verbose responses the expensive
+  side of the bill. Previous-generation IDs (e.g. <code>claude-opus-4-6</code>, <code>claude-sonnet-4-5</code>)
+  remain valid; know both generations.</p>
+
+  <h2>Choosing</h2>
+  <p>Pick the <strong>cheapest tier that clears your eval bar</strong>, then escalate only if it doesn&rsquo;t:
+  Haiku &rarr; Sonnet &rarr; Opus &rarr; Fable. Validate the choice with a real eval, not a hunch.</p>
+
+  <h2>Adaptive-thinking support</h2>
+  <p>Fable / Opus / Sonnet 5 (and Opus 4.6+/Sonnet 4.6) support <strong>adaptive thinking</strong>.
+  Haiku 4.5 supports classic <em>extended</em> thinking but not adaptive. Confirm per model &mdash; the SDK
+  exposes capability flags for <code>adaptive</code> vs <code>enabled</code>.</p>
+
+  <h2>Versioning &mdash; the production trap</h2>
+  <table>
+    <thead><tr><th>Form</th><th>Meaning</th></tr></thead>
+    <tbody>
+      <tr><td><code>claude-sonnet-4-5</code> (alias)</td><td>Pointer to the latest snapshot &mdash; for <strong>pre-4.6</strong> models only.</td></tr>
+      <tr><td><code>claude-sonnet-4-5-20250929</code></td><td>A fixed, dated snapshot.</td></tr>
+      <tr><td><code>claude-opus-5</code> (dateless)</td><td><strong>Since 4.6, dateless IDs are themselves pinned snapshots</strong> &mdash; NOT evergreen pointers. A common misconception.</td></tr>
+    </tbody>
+  </table>
+  <p><strong>Pin an explicit version in production</strong> and re-test on every upgrade.</p>
+
+  <div class="callout callout--source">
+    <span class="callout__label">Primary source</span>
+    <a href="https://platform.claude.com/docs/en/about-claude/models/model-ids-and-versions">Model IDs &amp; versions</a>.
+    Model IDs <code>claude-sonnet-5</code> / <code>claude-haiku-4-5</code> / <code>claude-opus-4-5</code>
+    appear in current <a href="https://github.com/anthropics/anthropic-sdk-python">SDK</a> examples.
+  </div>
+  <footer class="course-foot">CCDV-F reference &middot; used by
+    <a href="../lessons/0011-model-selection.html">Lesson 0011</a>.</footer>
+</main>
+</body>
+</html>

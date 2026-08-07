@@ -1,0 +1,111 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Phase 7 · Guardrails &amp; safe deployment</title>
+  <link rel="stylesheet" href="../assets/styles.css">
+</head>
+<body>
+<main>
+  <header class="lesson-head">
+    <div class="lesson-kicker">Phase 7 · Security &amp; Safety</div>
+    <h1>Guardrails &amp; safe deployment</h1>
+    <p class="lesson-sub">Layer your defenses, and design for least privilege from the start.</p>
+    <div class="badges"><span class="badge">Domain 7.2 · Guardrails &amp; Safe Deployment</span></div>
+  </header>
+
+  <p>One guardrail is a single point of failure. Safe deployment stacks independent controls &mdash; a prompt
+  guard, a classifier, and deterministic code &mdash; so a miss at one layer is caught at the next, all on top of
+  a least-privilege design.</p>
+
+  <p><strong>Your win:</strong> lay out a three-layer guardrail stack and spot why a prompt-only guard is weak.</p>
+
+  <div class="callout callout--source">
+    <span class="callout__label">Read alongside</span>
+    The <a href="../reference/prompt-injection.html">security sheet</a> (guardrail layering + secure-by-design).
+  </div>
+
+  <h2>The layers</h2>
+  <ul>
+    <li><strong>Prompt-level guard</strong> &mdash; instructions that set boundaries. Cheap, but shares the same
+      computational substrate as the threat, so it can be talked around.</li>
+    <li><strong>Classifier / LLM-as-judge</strong> &mdash; a separate model that screens input or output (Llama
+      Guard, ShieldGemma, PromptGuard, NeMo Guardrails). Independent of the main model&rsquo;s reasoning.</li>
+    <li><strong>Deterministic controls</strong> &mdash; code that can&rsquo;t be argued with: allowlists, schema
+      validation, and hooks (next lesson).</li>
+  </ul>
+
+  <h2>Secure-by-design</h2>
+  <ul>
+    <li><strong>Least privilege</strong> &mdash; pre-approve only the tools a task needs; deny the rest. An agent
+      that can&rsquo;t reach a dangerous tool can&rsquo;t be tricked into using it.</li>
+    <li><strong>Egress allowlists</strong> &mdash; restrict outbound network access to limit exfiltration. Even
+      allowlisted endpoints can be abused, so pair with output filtering.</li>
+    <li><strong>IAM &amp; privacy</strong> &mdash; identity and access management, data minimization, and the
+      content policy (Anthropic Usage Policy) as the floor.</li>
+  </ul>
+
+  <div class="callout callout--warn">
+    <span class="callout__label">Why prompt guards alone fail</span>
+    A prompt guardrail is reasoning trying to police reasoning &mdash; the same substrate the attacker targets.
+    It belongs in the stack, but never as the only layer. Put the hard stops in deterministic code.
+  </div>
+
+  <h2>Check yourself</h2>
+  <div class="quiz">
+    <script type="application/json">
+    [
+      {
+        "stem": "Why is a prompt-level guardrail insufficient on its own?",
+        "options": [
+          "It shares the same substrate as the threat, so it can be talked around",
+          "It is far too slow to run on every single request",
+          "It only works on the Haiku model, not larger tiers",
+          "It permanently disables the model's built-in safety"
+        ],
+        "answer": 0,
+        "explain": "Prompt guards are reasoning policing reasoning \u2014 the same computational substrate the attacker manipulates. Layer a classifier and deterministic controls on top."
+      },
+      {
+        "stem": "The least-privilege principle for an agent means...",
+        "options": [
+          "Pre-approve only the tools a task needs; deny the rest",
+          "Give the agent every tool so it never gets stuck",
+          "Run the agent as an administrator for reliability",
+          "Allow all outbound network access for flexibility"
+        ],
+        "answer": 0,
+        "explain": "An agent that cannot reach a dangerous tool cannot be tricked into using it. Grant the minimum tool set the task requires."
+      },
+      {
+        "stem": "An egress allowlist helps by...",
+        "options": [
+          "Restricting outbound access to limit data exfiltration",
+          "Guaranteeing no allowlisted endpoint can ever be abused",
+          "Replacing the need for any output filtering at all",
+          "Blocking all inbound prompt injection at the network"
+        ],
+        "answer": 0,
+        "explain": "Egress allowlists cap where data can flow out. But allowlisted endpoints can still be abused, so combine with output filtering \u2014 it's one layer, not the whole answer."
+      }
+    ]
+    </script>
+  </div>
+
+  <div class="callout callout--teacher">
+    <span class="callout__label">Ask your teacher</span>
+    Want to design the guardrail stack for a specific agent &mdash; which control lives at which layer? Bring the agent.
+  </div>
+
+  <nav class="lesson-nav">
+    <a href="0031-prompt-injection.html">&larr; Prompt injection</a>
+    <a href="0033-claude-hooks.html">Next &middot; Claude hooks &rarr;</a>
+  </nav>
+
+  <footer class="course-foot">CCDV-F &middot; Lesson 0032 &middot; Reference:
+    <a href="../reference/prompt-injection.html">Security</a></footer>
+</main>
+<script src="../assets/quiz.js"></script>
+</body>
+</html>

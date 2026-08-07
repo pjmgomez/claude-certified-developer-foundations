@@ -1,0 +1,113 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Phase 4 · Steering output</title>
+  <link rel="stylesheet" href="../assets/styles.css">
+</head>
+<body>
+<main>
+  <header class="lesson-head">
+    <div class="lesson-kicker">Phase 4 · Prompt &amp; Context Engineering</div>
+    <h1>Steering output</h1>
+    <p class="lesson-sub">Prefill the answer, constrain the shape, and never trust untrusted input.</p>
+    <div class="badges"><span class="badge">Domain 6.2 · Prompt Engineering</span></div>
+  </header>
+
+  <p>Beyond structure, a few techniques steer <em>what comes out</em>: prefilling the assistant turn, stating
+  output constraints, and sanitising anything that came from outside your system.</p>
+
+  <p><strong>Your win:</strong> prefill Claude&rsquo;s reply to force a format, and know when prefilling is the
+  wrong tool.</p>
+
+  <h2>The techniques</h2>
+  <ul>
+    <li><strong>Prefilling.</strong> Seed the start of the assistant turn to bias the shape &mdash; e.g. an
+      opening <code>{</code> to push toward JSON, or <code>"Sure, here are three:"</code> to set tone.</li>
+    <li><strong>Output constraints.</strong> Say exactly what you want: &ldquo;Answer with only the ticker
+      symbol,&rdquo; &ldquo;At most 40 words,&rdquo; &ldquo;No preamble.&rdquo;</li>
+    <li><strong>Input sanitisation.</strong> Treat text from users, tools, or documents as data, not
+      instructions. Wrap it in XML and never concatenate it into your instruction block (full treatment in Phase 7).</li>
+  </ul>
+
+  <h2>Do it</h2>
+  <ol class="steps">
+    <li>Prefill to force JSON without asking for it in prose:
+      <pre><code>resp = client.messages.create(
+    model="claude-sonnet-5", max_tokens=200,
+    messages=[
+        {"role": "user", "content": "Give me a user object for Ada Lovelace."},
+        {"role": "assistant", "content": "{"},   # prefill: the reply must continue the JSON
+    ],
+)
+print("{" + resp.content[0].text)                 # you own the opening brace</code></pre></li>
+    <li>Add a hard constraint to the user turn (&ldquo;Keys: name, born. Numbers only for born.&rdquo;) and
+      confirm the shape tightens.</li>
+  </ol>
+
+  <div class="callout callout--warn">
+    <span class="callout__label">Prefilling vs. structured outputs</span>
+    Prefilling <em>biases</em> the format; it doesn&rsquo;t guarantee it &mdash; and it is
+    <strong>incompatible with JSON structured outputs</strong> (next lesson), which <em>do</em> guarantee it. Use
+    prefilling for tone and light nudges; use structured outputs when you need a hard guarantee. On some newest
+    models, prefilling with thinking disabled can surface internal XML tags &mdash; verify per model.
+  </div>
+
+  <h2>Check yourself</h2>
+  <div class="quiz">
+    <script type="application/json">
+    [
+      {
+        "stem": "Prefilling the assistant turn is used to...",
+        "options": [
+          "Bias the shape or tone of the reply that follows",
+          "Guarantee the output matches a strict JSON schema",
+          "Cache the prompt prefix for a cheaper second call",
+          "Force the model to call a specific named tool next"
+        ],
+        "answer": 0,
+        "explain": "Prefilling seeds the start of the assistant turn to steer format or tone. It nudges, it doesn't guarantee \u2014 that's what structured outputs are for."
+      },
+      {
+        "stem": "Prefilling is incompatible with...",
+        "options": [
+          "JSON structured outputs, which guarantee the shape",
+          "The system prompt, which cannot be used alongside it",
+          "Streaming, which cannot begin from a seeded turn",
+          "Multi-turn conversations of more than two messages"
+        ],
+        "answer": 0,
+        "explain": "You can't combine prefilling with JSON structured outputs. Pick one: a nudge (prefill) or a guarantee (structured output)."
+      },
+      {
+        "stem": "Text that arrives from a user, tool, or document should be...",
+        "options": [
+          "Treated as data, wrapped in tags, never as instructions",
+          "Concatenated directly into your instruction block",
+          "Trusted, since it reached your system through the API",
+          "Executed as-is so the model can act on it quickly"
+        ],
+        "answer": 0,
+        "explain": "Untrusted content is data. Isolate it (XML boundaries) so an injected 'ignore your instructions' can't hijack the model. Phase 7 goes deep."
+      }
+    ]
+    </script>
+  </div>
+
+  <div class="callout callout--teacher">
+    <span class="callout__label">Ask your teacher</span>
+    Want to see prefilling and structured outputs solve the same task, side by side? Ask &mdash; the contrast
+    makes the tradeoff stick.
+  </div>
+
+  <nav class="lesson-nav">
+    <a href="0016-prompt-engineering.html">&larr; Prompt engineering essentials</a>
+    <a href="0018-structured-outputs.html">Next &middot; Structured outputs &rarr;</a>
+  </nav>
+
+  <footer class="course-foot">CCDV-F &middot; Lesson 0017</footer>
+</main>
+<script src="../assets/quiz.js"></script>
+</body>
+</html>
