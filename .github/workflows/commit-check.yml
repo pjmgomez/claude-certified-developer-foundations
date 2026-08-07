@@ -2,18 +2,21 @@ name: Commit Check
 
 on:
   pull_request:
-    branches: 'main'
+    branches: [main]
+
+# Least privilege by default; the job below grants only what it needs.
+permissions: {}
 
 jobs:
   commit-check:
     runs-on: ubuntu-latest
-    permissions:  # use permissions because use of pr-comments
+    permissions:
       contents: read
-      pull-requests: write
+      pull-requests: write  # required so the action can post PR comments
     steps:
       - uses: actions/checkout@v7
         with:
-          fetch-depth: 0  # Required for merge-base checks
+          fetch-depth: 0  # full history is required for commit and merge-base checks
       - uses: commit-check/commit-check-action@562a184b2b8e583e757b17eb385bc48370f44547 # v2.13.1
         with:
           message: true
