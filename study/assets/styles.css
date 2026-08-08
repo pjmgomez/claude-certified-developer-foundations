@@ -261,7 +261,7 @@ td code { white-space: nowrap; }
 
 /* ---- Print (lessons should print well for review; always light) ---- */
 @media print {
-  :root, :root[data-theme="dark"] {
+  :root, :root:not([data-theme]), :root[data-theme="dark"] {
     color-scheme: light;
     --ink: #1b1a17; --ink-soft: #4a463f;
     --paper: #fffdf8; --paper-edge: #f2ede3; --rule: #e0d8c8;

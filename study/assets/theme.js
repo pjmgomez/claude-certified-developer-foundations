@@ -9,11 +9,16 @@
   function saved() {
     try { return localStorage.getItem(KEY); } catch (e) { return null; }
   }
+  // In-memory fallback so the toggle keeps cycling even when localStorage
+  // is unavailable (blocked/full) and setItem/getItem can't persist state.
+  var memoryMode = null;
   function store(mode) {
+    memoryMode = mode;
     try { localStorage.setItem(KEY, mode); } catch (e) {}
   }
   function current() {
     var m = saved();
+    if (MODES.indexOf(m) === -1) m = memoryMode;
     return MODES.indexOf(m) === -1 ? "system" : m;
   }
   // Explicit light/dark set the attribute; "system" removes it so the
