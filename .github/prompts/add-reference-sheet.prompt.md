@@ -31,6 +31,7 @@ Use anything the user provided in `${input:details}`. Infer the rest and ask onl
      <meta name="viewport" content="width=device-width, initial-scale=1">
      <title>Reference · TITLE</title>
      <link rel="stylesheet" href="../assets/styles.css">
+     <script src="../assets/theme.js"></script>
    </head>
    <body>
    <main class="sheet">
@@ -70,8 +71,8 @@ Use anything the user provided in `${input:details}`. Infer the rest and ask onl
 - **Do not** add the sheet to [catalog.js](../../study/assets/catalog.js), the
   [index.html](../../study/index.html) course-map `<ol>`, or the progress tracker — sheets are **not
   tracked**. Creating one normally touches just the new file (plus a lesson footer for the link).
-- **No `<script>`, no `.quiz`, no `.lesson-nav`.** Use `<main class="sheet">`, link only
-  `../assets/styles.css`.
+- **Only script is `../assets/theme.js`** (the shared light/dark toggle, in `<head>`); **no `.quiz`,
+  no `.lesson-nav`.** Use `<main class="sheet">` and link `../assets/styles.css`.
 - Reuse existing `styles.css` classes; don't invent styles. Ground claims in primary sources; mark
   volatile facts **PROVISIONAL** — no web-fetch here, so verify SDK code against the official GitHub repos.
 - Report the files you changed so the user can review before committing (`docs:`).

@@ -58,6 +58,16 @@ zone of proximal development.
   `0021` (workflow vs agent), `0022` (five patterns), `0023` (Agent SDK), `0024` (subagents & hooks), `0025`
   (frameworks). Verified vs claude-agent-sdk-python: `query()`/`ClaudeSDKClient`/`ClaudeAgentOptions`, `@tool`
   + `create_sdk_mcp_server`, `HookMatcher`, `AgentDefinition`.
+- 2026-08-08 — Added a site-wide **light/dark theme** (Material 3–derived, warm-tinted to keep the
+  look). `assets/styles.css` gains `--surface`/`--on-brand`/`--accent-edge` tokens (light values equal
+  the old `#fff`/`#eccebf`, so light mode is byte-identical) plus a `:root[data-theme="dark"]` scheme
+  mirrored under `@media (prefers-color-scheme: dark)`; `@media print` forces light. New
+  `assets/theme.js` (loaded in every page's `<head>`) applies the saved choice before first paint and
+  injects a System/Light/Dark toggle; state in `localStorage` `ccdvf-theme-v1`. Wired into all 54 pages
+  (incl. the 14 reference sheets — convention updated in AGENTS.md + reference-sheets.instructions.md).
+  Verified: dark scheme meets WCAG AA on every text/surface pair (contrast script); toggle cycle +
+  persistence + no-flash pre-paint apply (node logic test); light palette unchanged. Two pre-existing
+  light callout-label contrasts (accent/warn on their soft containers, ~4.0:1) left as-is to keep the look.
 - 2026-08-07 — Phase 6 authored: `reference/claude-code-files.html`, `reference/claude-code-config.html`,
   lessons `0026` (CLAUDE.md hierarchy), `0027` (Rules/Skills/Commands), `0028` (agents & memory), `0029`
   (configuration mgmt), `0030` (application design). Docs-based (compass + repo skill files + writing-for-agents);

@@ -14,10 +14,55 @@
   --warn: #9a6b12;          /* amber for provisional/verify */
   --warn-soft: #f7edd6;
   --code-bg: #f4efe6;
+  --surface: #fff;          /* raised cards; flips dark in the M3 dark scheme */
+  --on-brand: #fff;         /* text/icons on a saturated accent or lab fill */
+  --accent-edge: #eccebf;   /* subtle terracotta border (badge--weight) */
+  color-scheme: light;
   --max: 46rem;
   --serif: "Iowan Old Style", "Charter", "Georgia", "Cambria", serif;
   --sans: "Inter", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
   --mono: "SFMono-Regular", "JetBrains Mono", "Menlo", "Consolas", monospace;
+}
+
+/* ---- Dark scheme: Material 3–derived tones, warm-tinted to keep the look.
+   An explicit choice wins via [data-theme]; otherwise follow the OS. ---- */
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --ink: #ece3d6;
+  --ink-soft: #b8b0a2;
+  --paper: #17140f;
+  --paper-edge: #1e1a14;
+  --rule: #3a352b;
+  --accent: #eb9a78;
+  --accent-soft: #4a2418;
+  --accent-edge: #6f3d2a;
+  --lab: #5cc6a8;
+  --lab-soft: #14332b;
+  --warn: #e6bd63;
+  --warn-soft: #38300f;
+  --code-bg: #201a12;
+  --surface: #221e17;
+  --on-brand: #241206;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme]) {
+    color-scheme: dark;
+    --ink: #ece3d6;
+    --ink-soft: #b8b0a2;
+    --paper: #17140f;
+    --paper-edge: #1e1a14;
+    --rule: #3a352b;
+    --accent: #eb9a78;
+    --accent-soft: #4a2418;
+    --accent-edge: #6f3d2a;
+    --lab: #5cc6a8;
+    --lab-soft: #14332b;
+    --warn: #e6bd63;
+    --warn-soft: #38300f;
+    --code-bg: #201a12;
+    --surface: #221e17;
+    --on-brand: #241206;
+  }
 }
 
 * { box-sizing: border-box; }
@@ -62,7 +107,7 @@ small { color: var(--ink-soft); }
   padding: .18rem .5rem; border-radius: 999px;
   background: var(--paper-edge); color: var(--ink-soft); border: 1px solid var(--rule);
 }
-.badge--weight { background: var(--accent-soft); color: var(--accent); border-color: #eccebf; }
+.badge--weight { background: var(--accent-soft); color: var(--accent); border-color: var(--accent-edge); }
 
 /* ---- Callouts ---- */
 .callout {
@@ -94,7 +139,7 @@ pre {
 }
 pre code { background: none; padding: 0; font-size: inherit; }
 kbd {
-  font-family: var(--sans); font-size: .8em; background: #fff; color: var(--ink);
+  font-family: var(--sans); font-size: .8em; background: var(--surface); color: var(--ink);
   border: 1px solid var(--rule); border-bottom-width: 2px; border-radius: 5px; padding: .05rem .4rem;
 }
 
@@ -106,13 +151,13 @@ ol.steps > li {
 ol.steps > li::before {
   content: counter(step); position: absolute; left: 0; top: 0;
   width: 1.7rem; height: 1.7rem; border-radius: 50%;
-  background: var(--accent); color: #fff; font-family: var(--sans);
+  background: var(--accent); color: var(--on-brand); font-family: var(--sans);
   font-size: .9rem; font-weight: 700; display: grid; place-items: center;
 }
 
 /* ---- Quiz widget (see assets/quiz.js) ---- */
 .quiz { margin: 1.4rem 0; }
-.quiz__q { border: 1px solid var(--rule); border-radius: 8px; padding: 1rem 1.1rem; margin: 1rem 0; background: #fff; }
+.quiz__q { border: 1px solid var(--rule); border-radius: 8px; padding: 1rem 1.1rem; margin: 1rem 0; background: var(--surface); }
 .quiz__stem { font-weight: 600; color: var(--ink); margin: 0 0 .7rem; }
 .quiz__opts { display: grid; gap: .5rem; }
 .quiz__opt {
@@ -160,9 +205,9 @@ td code { white-space: nowrap; }
 .box-seg { height: 100%; }
 .review-progress { font-family: var(--sans); font-size: .82rem; color: var(--ink-soft); text-align: right; margin-top: .3rem; }
 .review-actions { margin-top: 1.2rem; display: flex; gap: .6rem; flex-wrap: wrap; }
-.btn { font-family: var(--sans); font-size: .95rem; border: 1px solid var(--accent); background: var(--accent); color: #fff; border-radius: 6px; padding: .5rem 1rem; cursor: pointer; }
+.btn { font-family: var(--sans); font-size: .95rem; border: 1px solid var(--accent); background: var(--accent); color: var(--on-brand); border-radius: 6px; padding: .5rem 1rem; cursor: pointer; }
 .btn:hover { filter: brightness(1.05); }
-.btn--ghost { background: #fff; color: var(--accent); }
+.btn--ghost { background: var(--surface); color: var(--accent); }
 .btn--small { font-size: .82rem; padding: .35rem .7rem; }
 .review-done { text-align: center; padding: 2.5rem 1rem; }
 .review-done h2 { border: 0; }
@@ -172,7 +217,7 @@ td code { white-space: nowrap; }
 .progress-head { display: flex; justify-content: space-between; align-items: baseline; }
 .progress-label { font-size: .74rem; letter-spacing: .06em; text-transform: uppercase; color: var(--accent); font-weight: 700; }
 .progress-count { font-size: 1rem; font-weight: 700; color: var(--ink); }
-.progress-bar { height: .6rem; border-radius: 999px; background: #fff; border: 1px solid var(--rule); overflow: hidden; margin: .5rem 0; }
+.progress-bar { height: .6rem; border-radius: 999px; background: var(--surface); border: 1px solid var(--rule); overflow: hidden; margin: .5rem 0; }
 .progress-fill { height: 100%; width: 0; background: var(--lab); transition: width .25s ease; }
 .progress-actions { display: flex; justify-content: space-between; align-items: center; }
 .progress-pct { font-size: .82rem; color: var(--ink-soft); }
@@ -180,7 +225,7 @@ td code { white-space: nowrap; }
 .lesson-check { margin-right: .5rem; vertical-align: middle; cursor: pointer; accent-color: var(--lab); }
 .phase li.done > a:first-of-type { color: var(--ink-soft); text-decoration: line-through; text-decoration-color: var(--rule); }
 .phase-count { font-family: var(--sans); font-size: .72rem; font-weight: 700; color: var(--ink-soft); background: var(--paper-edge); border: 1px solid var(--rule); border-radius: 999px; padding: .05rem .5rem; margin-left: .5rem; vertical-align: middle; }
-.phase-count--done { color: #fff; background: var(--lab); border-color: var(--lab); }
+.phase-count--done { color: var(--on-brand); background: var(--lab); border-color: var(--lab); }
 .progress-buttons { display: inline-flex; gap: .7rem; align-items: center; }
 
 /* ---- Progress report ---- */
@@ -199,11 +244,35 @@ td code { white-space: nowrap; }
 .report-verdict { border-radius: 8px; padding: 1rem 1.2rem; margin: 1.4rem 0; font-family: var(--sans); border: 1px solid var(--rule); background: var(--paper-edge); color: var(--ink-soft); }
 @media print { .report-print-hide { display: none !important; } }
 
-/* ---- Print (lessons should print well for review) ---- */
+/* ---- Theme toggle (injected by assets/theme.js) ---- */
+.theme-toggle {
+  position: fixed; top: .8rem; right: .8rem; z-index: 50;
+  display: inline-flex; align-items: center; gap: .35rem;
+  font-family: var(--sans); font-size: .8rem; font-weight: 600;
+  color: var(--ink-soft); background: var(--surface);
+  border: 1px solid var(--rule); border-radius: 999px;
+  padding: .35rem .7rem; cursor: pointer;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, .12);
+}
+.theme-toggle:hover { border-color: var(--accent); color: var(--accent); }
+.theme-toggle:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.theme-toggle svg { width: 1rem; height: 1rem; display: block; }
+@media (max-width: 34rem) { .theme-toggle__label { display: none; } }
+
+/* ---- Print (lessons should print well for review; always light) ---- */
 @media print {
+  :root, :root:not([data-theme]), :root[data-theme="dark"] {
+    color-scheme: light;
+    --ink: #1b1a17; --ink-soft: #4a463f;
+    --paper: #fffdf8; --paper-edge: #f2ede3; --rule: #e0d8c8;
+    --accent: #b8502f; --accent-soft: #f6e6df; --accent-edge: #eccebf;
+    --lab: #1f6f5c; --lab-soft: #e2f0eb; --warn: #9a6b12; --warn-soft: #f7edd6;
+    --code-bg: #f4efe6; --surface: #fff; --on-brand: #fff;
+  }
   body { background: #fff; color: #000; padding: 0; font-size: 11pt; }
   a { color: #000; }
   .callout, .quiz__q, pre { break-inside: avoid; }
   .quiz__opt { cursor: default; }
   .lesson-nav, .quiz__opt:hover { background: none; }
+  .theme-toggle { display: none !important; }
 }

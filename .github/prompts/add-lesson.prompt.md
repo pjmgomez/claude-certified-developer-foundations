@@ -30,6 +30,7 @@ Use anything the user provided in `${input:details}`. For anything missing, infe
      <meta name="viewport" content="width=device-width, initial-scale=1">
      <title>Phase N · TITLE</title>
      <link rel="stylesheet" href="../assets/styles.css">
+     <script src="../assets/theme.js"></script>
    </head>
    <body>
    <main>

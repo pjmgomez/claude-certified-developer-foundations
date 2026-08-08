@@ -14,7 +14,7 @@ report silently desync (nothing warns you):
 
 1. **Page** — `study/lessons/NNNN-slug.html`, copied from an existing lesson
    (e.g. [0006-tool-use-loop.html](../../study/lessons/0006-tool-use-loop.html)). Numbering is
-   4-digit zero-padded and sequential. Link `../assets/styles.css` and load `../assets/quiz.js`.
+   4-digit zero-padded and sequential. Link `../assets/styles.css`, load `../assets/theme.js` in `<head>` (the shared light/dark toggle), and load `../assets/quiz.js` before `</body>`.
 2. **Course map** — an `<li><a href="lessons/NNNN-slug.html">Title</a></li>` inside the `<ol>`
    of the correct `.phase` block in [study/index.html](../../study/index.html). `progress.js`
    scrapes the `.phase` › `<ol>` › `<li>` shape, so keep it.
