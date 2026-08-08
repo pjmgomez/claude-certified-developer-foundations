@@ -70,7 +70,7 @@ Each lesson ends with an embedded quiz; the daily drill pulls from a central ban
 </script></div>
 ```
 
-- `answer` is a **0-based index** into `options` (the repo authors the correct option first, so `answer: 0`).
+- `answer` is a **0-based index** into `options` (the repo authors the correct option first, so `answer: 0`). The renderer ([study/assets/quiz.js](study/assets/quiz.js) and [study/assets/review.js](study/assets/review.js)) **shuffles option order at display time**, so authoring correct-first is a convenience, not a position tell.
 - Keep **all options the same length** — no formatting tells ([study/NOTES.md](study/NOTES.md) quiz rule).
 - Malformed or missing JSON **fails silently** — [study/assets/quiz.js](study/assets/quiz.js) swallows it and the quiz simply disappears. Validate the JSON (no trailing commas; `answer` in range).
 - Review-bank items in [study/assets/review-bank.js](study/assets/review-bank.js) add two fields: `id` (`d<domain>-<n>`, e.g. `d8-3`) and `domain`.

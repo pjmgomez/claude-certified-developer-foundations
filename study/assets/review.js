@@ -143,18 +143,23 @@
     feedback.className = "quiz__feedback";
     var answered = false;
 
-    q.options.forEach(function (text, i) {
+    // Shuffle so the correct option (authored first) isn't always the first button.
+    var order = shuffle(q.options.map(function (text, i) {
+      return { text: text, correct: i === q.answer };
+    }));
+
+    order.forEach(function (opt, i) {
       var btn = document.createElement("button");
       btn.className = "quiz__opt";
       btn.type = "button";
-      btn.textContent = text;
+      btn.textContent = opt.text;
       btn.addEventListener("click", function () {
         if (answered) return;
         answered = true;
-        var right = i === q.answer;
+        var right = opt.correct;
         Array.prototype.forEach.call(opts.children, function (c, ci) {
           c.setAttribute("disabled", "disabled");
-          if (ci === q.answer) c.classList.add("quiz__opt--correct");
+          if (order[ci].correct) c.classList.add("quiz__opt--correct");
           else if (ci === i) c.classList.add("quiz__opt--wrong");
         });
         self.grade(q, right);

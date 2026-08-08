@@ -30,8 +30,10 @@ Quiz JSON shape (lesson `.quiz` blocks and `review-bank.js` items):
 { "stem": "...", "options": ["A", "B", "C", "D"], "answer": 0, "explain": "..." }
 ```
 
-- `answer` is a **0-based index**; author the correct option first (`answer: 0`).
-- All `options` the **same length** — no formatting tells.
+- `answer` is a **0-based index**; author the correct option first (`answer: 0`). The renderer
+  (`quiz.js` / `review.js`) **shuffles option order at display time**, so correct-first is just an
+  authoring convenience and never becomes a position tell.
+- All `options` the **same length** — no formatting tells (belt-and-suspenders alongside the shuffle).
 - **Valid JSON only**: no trailing commas, `answer` in range. Malformed JSON fails silently and
   the quiz vanishes (`quiz.js` swallows the error).
 - `review-bank.js` items add `id` (`d<domain>-<n>`, e.g. `d8-3`) and `domain`.
