@@ -39,8 +39,10 @@ capstone — rather than passive reading.
 The site is plain HTML/CSS/JS — open [study/index.html](study/index.html) directly, or serve it:
 
 ```bash
-cd study && python3 -m http.server   # then open http://localhost:8000/index.html
+cd study && python3 -m http.server
 ```
+
+Then open http://localhost:8000/index.html in your browser.
 
 ### Run the capstone
 

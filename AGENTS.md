@@ -27,8 +27,10 @@ pip install pre-commit && pre-commit install --hook-type commit-msg --hook-type 
 Static, zero-dependency site — open the HTML directly (`file://`) or serve it:
 
 ```bash
-cd study && python3 -m http.server   # then open http://localhost:8000/index.html
+cd study && python3 -m http.server
 ```
+
+Then open http://localhost:8000/index.html in your browser.
 
 No transpiler or modules: JS loads via classic `<script src>` tags and shares state through `window` globals plus `localStorage`. One shared stylesheet, [study/assets/styles.css](study/assets/styles.css), drives every page.
 
