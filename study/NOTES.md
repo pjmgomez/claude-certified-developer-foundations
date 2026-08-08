@@ -69,3 +69,6 @@ zone of proximal development.
 - 2026-08-07 — Phase 8 authored: lessons `0036` (capstone) + `0037` (exam readiness), `capstone/capstone.py`
   (runnable support-triage app: caching + tool loop + guard + forced-tool structured output + streaming + usage),
   and `index.html` (course map linking all 37 lessons + 14 reference sheets). **Course content complete.**
+- 2026-08-07 — Spaced-review system added: `assets/review-bank.js` (48 high-yield questions, 6/domain),
+  `assets/review.js` (Leitner 5-box engine, localStorage, interleaved, progress bar), `review.html`. Linked
+  from `index.html` + `0037`. Builds storage strength (spacing/interleaving) atop the per-lesson fluency quizzes.

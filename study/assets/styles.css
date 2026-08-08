@@ -151,6 +151,22 @@ td code { white-space: nowrap; }
 .yes { color: var(--lab); font-weight: 700; }
 .no { color: var(--accent); font-weight: 700; }
 
+/* ---- Spaced review ---- */
+.review-domain { font-family: var(--sans); font-size: .74rem; letter-spacing: .06em; text-transform: uppercase; color: var(--accent); font-weight: 700; margin-bottom: .3rem; }
+.review-stats { display: flex; flex-wrap: wrap; gap: .6rem; font-family: var(--sans); font-size: .82rem; margin: 1rem 0; }
+.review-stat { background: var(--paper-edge); border: 1px solid var(--rule); border-radius: 6px; padding: .35rem .7rem; }
+.review-stat b { color: var(--ink); }
+.box-bar { display: flex; height: .55rem; border-radius: 999px; overflow: hidden; border: 1px solid var(--rule); margin: .4rem 0 1rem; background: var(--paper-edge); }
+.box-seg { height: 100%; }
+.review-progress { font-family: var(--sans); font-size: .82rem; color: var(--ink-soft); text-align: right; margin-top: .3rem; }
+.review-actions { margin-top: 1.2rem; display: flex; gap: .6rem; flex-wrap: wrap; }
+.btn { font-family: var(--sans); font-size: .95rem; border: 1px solid var(--accent); background: var(--accent); color: #fff; border-radius: 6px; padding: .5rem 1rem; cursor: pointer; }
+.btn:hover { filter: brightness(1.05); }
+.btn--ghost { background: #fff; color: var(--accent); }
+.btn--small { font-size: .82rem; padding: .35rem .7rem; }
+.review-done { text-align: center; padding: 2.5rem 1rem; }
+.review-done h2 { border: 0; }
+
 /* ---- Print (lessons should print well for review) ---- */
 @media print {
   body { background: #fff; color: #000; padding: 0; font-size: 11pt; }
