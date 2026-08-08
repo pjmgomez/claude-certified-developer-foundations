@@ -78,6 +78,13 @@ request, and [.pre-commit-config.yaml](.pre-commit-config.yaml) runs the same ch
 
 See [CONTRIBUTING.md](CONTRIBUTING.md) for the full workflow.
 
+## Getting help
+
+Have a question or hit a problem? Open an issue using the
+[bug report](.github/ISSUE_TEMPLATE/bug_report.md) or
+[feature request](.github/ISSUE_TEMPLATE/feature_request.md) template. For how the repo is laid out,
+see [AGENTS.md](AGENTS.md); for how to propose a change, see [CONTRIBUTING.md](CONTRIBUTING.md).
+
 ## Contributing
 
 Contributions are welcome — please read [CONTRIBUTING.md](CONTRIBUTING.md) before opening an issue or
@@ -86,6 +93,10 @@ pull request.
 ## Security
 
 Found a security issue? Please follow [SECURITY.md](SECURITY.md) rather than opening a public issue.
+
+## Maintainers
+
+Maintained by [pjmgomez](https://github.com/pjmgomez).
 
 ## License
 
