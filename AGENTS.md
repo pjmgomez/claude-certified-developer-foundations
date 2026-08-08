@@ -96,6 +96,7 @@ Repo-scoped instructions and prompts that steer AI coding agents. **Keep them in
 | [.github/instructions/reference-sheets.instructions.md](.github/instructions/reference-sheets.instructions.md) | `study/reference/**` | Reference-sheet structure (`.sheet`, no quiz, not tracked) |
 | [.github/instructions/capstone.instructions.md](.github/instructions/capstone.instructions.md) | `study/capstone/**` | Capstone constraints: live API calls, no tests, keep the teaching surface intact |
 | [.github/prompts/add-lesson.prompt.md](.github/prompts/add-lesson.prompt.md) | `/add-lesson` | Scaffolds a new lesson across all three places |
+| [.github/prompts/add-reference-sheet.prompt.md](.github/prompts/add-reference-sheet.prompt.md) | `/add-reference-sheet` | Scaffolds a reference sheet and wires its lesson links |
 
 ## Key files
 
