@@ -88,7 +88,7 @@ The material is **fact-sensitive and primary-source-grounded**:
 
 ## Chat customization files
 
-Repo-scoped instructions and prompts that steer AI coding agents. **Keep them in sync when the conventions above change** — each is the enforceable checklist for one part of `study/`.
+Repo-scoped instructions, prompts, and skills that steer AI coding agents. **Keep them in sync when the conventions above change** — each is the enforceable checklist for one part of `study/`.
 
 | File | Applies to | Purpose |
 |------|-----------|---------|
@@ -97,6 +97,7 @@ Repo-scoped instructions and prompts that steer AI coding agents. **Keep them in
 | [.github/instructions/capstone.instructions.md](.github/instructions/capstone.instructions.md) | `study/capstone/**` | Capstone constraints: live API calls, no tests, keep the teaching surface intact |
 | [.github/prompts/add-lesson.prompt.md](.github/prompts/add-lesson.prompt.md) | `/add-lesson` | Scaffolds a new lesson across all three places |
 | [.github/prompts/add-reference-sheet.prompt.md](.github/prompts/add-reference-sheet.prompt.md) | `/add-reference-sheet` | Scaffolds a reference sheet and wires its lesson links |
+| [.github/skills/verify-claim/SKILL.md](.github/skills/verify-claim/SKILL.md) | `/verify-claim` (auto) | Fact-check a claim against a primary source; mark volatile facts PROVISIONAL |
 
 ## Key files
 
