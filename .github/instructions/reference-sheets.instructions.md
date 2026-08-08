@@ -17,7 +17,8 @@ Copy the shape of an existing sheet (e.g.
 - `<main class="sheet">` wraps the page (lessons use a bare `<main>`).
 - Header is `.lesson-head` with `.lesson-kicker` = **"Reference sheet"**, an `<h1>`, a `.lesson-sub`,
   and one or more `<span class="badge">Domain N.M · Topic</span>` inside `.badges`.
-- Link **only** `../assets/styles.css`. **No `<script>`, no `.quiz`, no `.lesson-nav`.**
+- Link `../assets/styles.css` and load `../assets/theme.js` in `<head>` (the shared light/dark
+  toggle — the *only* script a sheet includes). **No `.quiz`, no `.lesson-nav`.**
 - Close with `<footer class="course-foot">` linking the lesson(s) the sheet supports, e.g.
   `used by <a href="../lessons/0011-model-selection.html">Lesson 0011</a>`.
 

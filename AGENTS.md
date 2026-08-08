@@ -34,9 +34,9 @@ No transpiler or modules: JS loads via classic `<script src>` tags and shares st
 
 **Asset paths depend on depth.** Root pages (e.g. [study/index.html](study/index.html)) link `assets/…`; pages under [study/lessons/](study/lessons/) and [study/reference/](study/reference/) link `../assets/…`. Get this wrong and the page renders unstyled.
 
-**Scripts loaded per page** (kept deliberately minimal):
+**Scripts loaded per page** (kept deliberately minimal). **Every page** also loads `assets/theme.js` (root) / `../assets/theme.js` (lessons and reference) in `<head>` — the shared System/Light/Dark theme toggle, which sets `<html data-theme>` before first paint — so the table lists only the *page-specific* scripts:
 
-| Page | Scripts |
+| Page | Page-specific scripts (every page also loads `theme.js`) |
 |------|---------|
 | `index.html` | `assets/progress.js` |
 | `lessons/*.html` | `../assets/quiz.js` |
@@ -44,17 +44,17 @@ No transpiler or modules: JS loads via classic `<script src>` tags and shares st
 | `review.html` | `assets/review-bank.js`, `assets/review.js` |
 | `progress.html` | `assets/catalog.js`, `assets/review-bank.js`, `assets/report.js` |
 
-**Shared state:** globals `window.COURSE_CATALOG` ([study/assets/catalog.js](study/assets/catalog.js)) and `window.REVIEW_BANK` ([study/assets/review-bank.js](study/assets/review-bank.js)); `localStorage` keys `ccdvf-progress-v1` (lesson completion) and `ccdvf-review-v1` (Leitner review boxes). Reuse existing CSS classes (`.lesson-head`, `.badges` / `.badge--weight`, `.callout--source` / `--lab` / `--warn` / `--teacher`, `ol.steps`, `.quiz__*`, `.sheet`) rather than inventing styles; small page-specific tweaks go in an inline `<style>`.
+**Shared state:** globals `window.COURSE_CATALOG` ([study/assets/catalog.js](study/assets/catalog.js)) and `window.REVIEW_BANK` ([study/assets/review-bank.js](study/assets/review-bank.js)); `localStorage` keys `ccdvf-progress-v1` (lesson completion), `ccdvf-review-v1` (Leitner review boxes), and `ccdvf-theme-v1` (System/Light/Dark choice). Reuse existing CSS classes (`.lesson-head`, `.badges` / `.badge--weight`, `.callout--source` / `--lab` / `--warn` / `--teacher`, `ol.steps`, `.quiz__*`, `.sheet`) rather than inventing styles; small page-specific tweaks go in an inline `<style>`.
 
 ## Adding or editing a lesson
 
 A lesson lives in **three places that must stay in sync** — miss one and the progress tracker and report silently desync (nothing warns you). The `/add-lesson` prompt scaffolds all three; the same rules apply to hand edits.
 
-1. **The page** — `study/lessons/NNNN-slug.html`, copied from an existing lesson (e.g. [study/lessons/0006-tool-use-loop.html](study/lessons/0006-tool-use-loop.html)). Numbering is 4-digit zero-padded and sequential. It must link `../assets/styles.css` and load `../assets/quiz.js`.
+1. **The page** — `study/lessons/NNNN-slug.html`, copied from an existing lesson (e.g. [study/lessons/0006-tool-use-loop.html](study/lessons/0006-tool-use-loop.html)). Numbering is 4-digit zero-padded and sequential. It must link `../assets/styles.css`, load `../assets/theme.js` in `<head>` (the shared theme toggle), and load `../assets/quiz.js` before `</body>`.
 2. **The course map** — an `<li><a href="lessons/NNNN-slug.html">Title</a></li>` inside the `<ol>` of the correct `.phase` block in [study/index.html](study/index.html). [study/assets/progress.js](study/assets/progress.js) scrapes this exact `.phase` › `<ol>` › `<li>` shape to place completion checkboxes, so keep the structure.
 3. **The catalog** — `{ id: "NNNN-slug", title: "Title" }` in the matching phase of [study/assets/catalog.js](study/assets/catalog.js). **The `id` must equal the filename slug** (without `.html`); [study/assets/report.js](study/assets/report.js) keys the readiness report off it.
 
-Reference sheets ([study/reference/](study/reference/)) are different: `<main class="sheet">`, no quiz, no `<script>`, and they are **not** in the catalog and **not** tracked.
+Reference sheets ([study/reference/](study/reference/)) are different: `<main class="sheet">`, no quiz, no `.lesson-nav`, and (besides the shared `theme.js`) no page-specific script; they are **not** in the catalog and **not** tracked.
 
 ## Quiz & review-bank format
 
@@ -112,7 +112,8 @@ Repo-scoped instructions, prompts, and skills that steer AI coding agents. **Kee
 | [study/assets/review.js](study/assets/review.js) | Leitner spaced-repetition engine (`review.html`) |
 | [study/assets/progress.js](study/assets/progress.js) | Completion checkboxes on the course map |
 | [study/assets/report.js](study/assets/report.js) | Printable readiness report (`progress.html`) |
-| [study/assets/styles.css](study/assets/styles.css) | Shared design system for every page |
+| [study/assets/styles.css](study/assets/styles.css) | Shared design system for every page (light + Material 3–derived dark scheme) |
+| [study/assets/theme.js](study/assets/theme.js) | Shared System/Light/Dark theme toggle, loaded in every page's `<head>` |
 | [study/capstone/capstone.py](study/capstone/capstone.py) | Runnable capstone app (needs `anthropic` + API key) |
 | [study/MISSION.md](study/MISSION.md) / [study/NOTES.md](study/NOTES.md) / [study/RESOURCES.md](study/RESOURCES.md) / [study/GLOSSARY.md](study/GLOSSARY.md) | Why / state log / sources / vocabulary |
 | [compass_artifact_wf-3f1484e0-5795-5b85-bd74-771261436e90_text_markdown.md](compass_artifact_wf-3f1484e0-5795-5b85-bd74-771261436e90_text_markdown.md) | Source study guide (8 domains) |
