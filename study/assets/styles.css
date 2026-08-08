@@ -167,6 +167,21 @@ td code { white-space: nowrap; }
 .review-done { text-align: center; padding: 2.5rem 1rem; }
 .review-done h2 { border: 0; }
 
+/* ---- Progress tracker (course map) ---- */
+.progress-panel { border: 1px solid var(--rule); border-radius: 8px; background: var(--paper-edge); padding: 1rem 1.2rem; margin: 1.4rem 0; font-family: var(--sans); }
+.progress-head { display: flex; justify-content: space-between; align-items: baseline; }
+.progress-label { font-size: .74rem; letter-spacing: .06em; text-transform: uppercase; color: var(--accent); font-weight: 700; }
+.progress-count { font-size: 1rem; font-weight: 700; color: var(--ink); }
+.progress-bar { height: .6rem; border-radius: 999px; background: #fff; border: 1px solid var(--rule); overflow: hidden; margin: .5rem 0; }
+.progress-fill { height: 100%; width: 0; background: var(--lab); transition: width .25s ease; }
+.progress-actions { display: flex; justify-content: space-between; align-items: center; }
+.progress-pct { font-size: .82rem; color: var(--ink-soft); }
+.progress-done { display: none; margin-top: .8rem; padding-top: .8rem; border-top: 1px solid var(--rule); font-size: .9rem; color: var(--lab); }
+.lesson-check { margin-right: .5rem; vertical-align: middle; cursor: pointer; accent-color: var(--lab); }
+.phase li.done > a:first-of-type { color: var(--ink-soft); text-decoration: line-through; text-decoration-color: var(--rule); }
+.phase-count { font-family: var(--sans); font-size: .72rem; font-weight: 700; color: var(--ink-soft); background: var(--paper-edge); border: 1px solid var(--rule); border-radius: 999px; padding: .05rem .5rem; margin-left: .5rem; vertical-align: middle; }
+.phase-count--done { color: #fff; background: var(--lab); border-color: var(--lab); }
+
 /* ---- Print (lessons should print well for review) ---- */
 @media print {
   body { background: #fff; color: #000; padding: 0; font-size: 11pt; }

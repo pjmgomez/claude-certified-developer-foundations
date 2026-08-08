@@ -72,3 +72,6 @@ zone of proximal development.
 - 2026-08-07 — Spaced-review system added: `assets/review-bank.js` (48 high-yield questions, 6/domain),
   `assets/review.js` (Leitner 5-box engine, localStorage, interleaved, progress bar), `review.html`. Linked
   from `index.html` + `0037`. Builds storage strength (spacing/interleaving) atop the per-lesson fluency quizzes.
+- 2026-08-08 — Progress tracker added: `assets/progress.js` decorates the course map with a per-lesson
+  completion checkbox, an overall progress bar (x / 37), and per-phase counts — all saved in localStorage
+  (`ccdvf-progress-v1`). No lesson files touched; the map is the control surface.
