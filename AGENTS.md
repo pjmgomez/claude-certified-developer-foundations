@@ -86,6 +86,17 @@ The material is **fact-sensitive and primary-source-grounded**:
 - The source guide uses `## DOMAIN N` headings, **bold** term leads, and inline `code` for API fields, file paths, and identifiers — match that style.
 - [study/NOTES.md](study/NOTES.md) is the running state-of-project log (roadmap plus a dated session log recording what each fact was verified against); [study/MISSION.md](study/MISSION.md) is the why.
 
+## Chat customization files
+
+Repo-scoped instructions and prompts that steer AI coding agents. **Keep them in sync when the conventions above change** — each is the enforceable checklist for one part of `study/`.
+
+| File | Applies to | Purpose |
+|------|-----------|---------|
+| [.github/instructions/lessons.instructions.md](.github/instructions/lessons.instructions.md) | `study/lessons/**`, `index.html`, `catalog.js`, `review-bank.js` | Lesson authoring: three-place sync and quiz/review JSON rules |
+| [.github/instructions/reference-sheets.instructions.md](.github/instructions/reference-sheets.instructions.md) | `study/reference/**` | Reference-sheet structure (`.sheet`, no quiz, not tracked) |
+| [.github/instructions/capstone.instructions.md](.github/instructions/capstone.instructions.md) | `study/capstone/**` | Capstone constraints: live API calls, no tests, keep the teaching surface intact |
+| [.github/prompts/add-lesson.prompt.md](.github/prompts/add-lesson.prompt.md) | `/add-lesson` | Scaffolds a new lesson across all three places |
+
 ## Key files
 
 | Path | Purpose |
