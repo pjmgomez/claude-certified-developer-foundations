@@ -75,3 +75,7 @@ zone of proximal development.
 - 2026-08-08 — Progress tracker added: `assets/progress.js` decorates the course map with a per-lesson
   completion checkbox, an overall progress bar (x / 37), and per-phase counts — all saved in localStorage
   (`ccdvf-progress-v1`). No lesson files touched; the map is the control surface.
+- 2026-08-08 — Progress report added: `progress.html` + `assets/report.js` + `assets/catalog.js` (single
+  source of truth for lessons). Aggregates lesson completion + spaced-review box distribution into one
+  printable page with a readiness verdict; linked from the course map. Data validated via node (37 lessons,
+  48 questions, 4 options each, answer index 0, 6/domain).

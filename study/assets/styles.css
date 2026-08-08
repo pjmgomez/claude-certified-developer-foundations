@@ -181,6 +181,23 @@ td code { white-space: nowrap; }
 .phase li.done > a:first-of-type { color: var(--ink-soft); text-decoration: line-through; text-decoration-color: var(--rule); }
 .phase-count { font-family: var(--sans); font-size: .72rem; font-weight: 700; color: var(--ink-soft); background: var(--paper-edge); border: 1px solid var(--rule); border-radius: 999px; padding: .05rem .5rem; margin-left: .5rem; vertical-align: middle; }
 .phase-count--done { color: #fff; background: var(--lab); border-color: var(--lab); }
+.progress-buttons { display: inline-flex; gap: .7rem; align-items: center; }
+
+/* ---- Progress report ---- */
+.report-date { font-family: var(--sans); font-size: .9rem; color: var(--ink-soft); margin: .2rem 0 .6rem; }
+.report-nav { font-family: var(--sans); font-size: .9rem; }
+.report-big { font-family: var(--serif); font-size: 2.4rem; font-weight: 700; color: var(--ink); line-height: 1; margin: .3rem 0 .5rem; }
+.report-phase { margin: 1.1rem 0; }
+.report-phase h3 { margin: 0 0 .2rem; display: flex; justify-content: space-between; align-items: baseline; gap: 1rem; }
+.report-phase .pc { font-family: var(--sans); font-size: .82rem; font-weight: 700; color: var(--ink-soft); }
+.report-list { list-style: none; margin: .2rem 0 0; padding: 0; font-family: var(--sans); font-size: .92rem; }
+.report-list li { margin: .16rem 0; color: var(--ink-soft); }
+.report-list li.done { color: var(--ink); }
+.report-list .mark { display: inline-block; width: 1.3rem; font-weight: 700; }
+.report-list li.done .mark { color: var(--lab); }
+.report-note { font-family: var(--sans); font-size: .85rem; color: var(--ink-soft); }
+.report-verdict { border-radius: 8px; padding: 1rem 1.2rem; margin: 1.4rem 0; font-family: var(--sans); border: 1px solid var(--rule); background: var(--paper-edge); color: var(--ink-soft); }
+@media print { .report-print-hide { display: none !important; } }
 
 /* ---- Print (lessons should print well for review) ---- */
 @media print {

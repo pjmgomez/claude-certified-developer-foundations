@@ -49,7 +49,8 @@
       '<span class="progress-count"></span></div>' +
       '<div class="progress-bar"><div class="progress-fill"></div></div>' +
       '<div class="progress-actions"><span class="progress-pct"></span>' +
-      '<button class="btn btn--ghost btn--small" type="button">Reset progress</button></div>' +
+      '<span class="progress-buttons"><a href="progress.html">Full report \u2192</a>' +
+      '<button class="btn btn--ghost btn--small" type="button">Reset progress</button></span></div>' +
       '<div class="progress-done">Every lesson complete \u2014 now drill the ' +
       '<a href="review.html">spaced review</a> daily and sit the exam with confidence.</div>';
 
